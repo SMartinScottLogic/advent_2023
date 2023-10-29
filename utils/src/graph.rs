@@ -1,8 +1,10 @@
-use std::cmp::Eq;
+use std::cmp::{Eq, PartialOrd};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::iter::Iterator;
 use std::marker::Copy;
+use std::ops::Add;
 use tracing::debug;
 
 fn breadth_first_search_build_path<'a, N>(
@@ -82,8 +84,8 @@ where
     GN: Fn(&N) -> NEIGH,
     IE: Fn(&N) -> bool,
     N: Debug + Eq + Copy + Hash,
-    R: Debug + std::cmp::PartialOrd + Copy + std::ops::Add<Output = R> + HasOne,
-    NEIGH: std::iter::Iterator<Item = N>,
+    R: Debug + PartialOrd + Copy + Add<Output = R> + HasOne,
+    NEIGH: Iterator<Item = N>,
 {
     let mut scores = HashMap::new();
     for node in nodes {
