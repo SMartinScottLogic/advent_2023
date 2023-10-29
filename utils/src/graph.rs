@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use tracing::debug;
+
 pub fn dijkstra<N, IS, IE, GN, NEIGH, R>(
     nodes: &Vec<N>,
     initial_score: IS,
@@ -62,7 +64,7 @@ where
             }
         }
     };
-    log::debug!("{:?}", scores);
+    debug!("{:?}", scores);
     result
 }
 

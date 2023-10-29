@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-log = {workspace = true}
+tracing = {workspace = true}
 anyhow = {workspace = true}
-env_logger = {workspace = true}
 
 [dependencies.utils]
 path = "../utils"

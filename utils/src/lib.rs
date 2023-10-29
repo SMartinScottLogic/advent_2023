@@ -7,5 +7,5 @@ mod solution;
 pub use graph::dijkstra;
 pub use matrix::Matrix;
 pub use point::Point;
-pub use runner::{run, BaseName};
+pub use runner::{log_init, run, BaseName};
 pub use solution::{load, Solution};

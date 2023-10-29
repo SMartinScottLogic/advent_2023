@@ -1,7 +1,8 @@
-use std::fmt::Display;
+use std::{env, fmt::Display, str::FromStr};
 
 use anyhow::{Context, Result};
-use log::{error, info};
+use tracing::{error, info, instrument, span, Level};
+use tracing_subscriber::fmt::format::FmtSpan;
 use yansi::Paint;
 
 use crate::{load, Solution};
@@ -16,6 +17,21 @@ impl BaseName for &str {
     }
 }
 
+pub fn log_init() {
+    // install global collector configured based on RUST_LOG env var.
+    let level =
+        env::var("RUST_LOG").map_or(Level::INFO, |v| Level::from_str(&v).unwrap_or(Level::INFO));
+    tracing_subscriber::fmt()
+        .with_span_events(FmtSpan::ACTIVE)
+        .with_thread_ids(true)
+        .with_thread_names(true)
+        .with_file(true)
+        .with_line_number(true)
+        .with_max_level(level)
+        .init();
+}
+
+#[instrument]
 pub fn run<S, R>(samples: &[&str], full: &[&str]) -> Result<()>
 where
     S: Solution
@@ -34,18 +50,32 @@ where
         .unwrap()
         .to_owned();
 
-    for suffix in samples.iter() {
-        let filename = format!("input/{basename}.{suffix}");
-        if let Err(e) = run_solution_file::<S, R>(&filename, false) {
-            error!("Failed running against '{filename}': {e:?}");
+    span!(Level::INFO, "samples").in_scope(|| {
+        for suffix in samples.iter() {
+            let filename = format!("input/{basename}.{suffix}");
+            if let Err(e) = run_solution_file::<S, R>(&filename, false) {
+                error!(
+                    "{}Failed running against '{}': {:?}",
+                    Paint::mask("🎄 "),
+                    filename,
+                    e
+                );
+            }
         }
-    }
-    for suffix in full.iter() {
-        let filename = format!("input/{basename}.{suffix}");
-        if let Err(e) = run_solution_file::<S, R>(&filename, true) {
-            error!("Failed running against '{filename}': {e:?}");
+    });
+    span!(Level::INFO, "full").in_scope(|| {
+        for suffix in full.iter() {
+            let filename = format!("input/{basename}.{suffix}");
+            if let Err(e) = run_solution_file::<S, R>(&filename, true) {
+                error!(
+                    "{}Failed running against '{}': {:?}",
+                    Paint::mask("🎅 "),
+                    filename,
+                    e
+                );
+            }
         }
-    }
+    });
     Ok(())
 }
 
