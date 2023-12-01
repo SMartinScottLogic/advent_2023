@@ -20,6 +20,7 @@ impl utils::Solution for Solution {
     }
 }
 
+#[allow(unused_variables, unused_mut)]
 impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     type Error = std::io::Error;
 
