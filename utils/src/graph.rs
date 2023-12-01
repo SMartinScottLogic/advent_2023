@@ -73,8 +73,6 @@ where
     None
 }
 
-use tracing::debug;
-
 pub fn dijkstra<N, IS, IE, GN, NEIGH, R>(
     nodes: &Vec<N>,
     initial_score: IS,

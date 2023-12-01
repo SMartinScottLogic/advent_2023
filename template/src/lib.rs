@@ -24,8 +24,8 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     type Error = std::io::Error;
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
-        let solution = Self::default();
-        for _line in reader.lines() {
+        let mut solution = Self::default();
+        for line in reader.lines().flatten() {
             // Implement for problem
         }
         Ok(solution)
