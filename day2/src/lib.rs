@@ -1,35 +1,121 @@
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::HashMap,
+    io::{BufRead, BufReader},
+};
+
+use tracing::{debug, info};
 
 pub type ResultType = u64;
 
 #[derive(Debug, Default)]
-pub struct Solution {}
+pub struct Solution {
+    games: HashMap<usize, Vec<Set>>,
+}
 
 impl utils::Solution for Solution {
     type Result = anyhow::Result<ResultType>;
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
+        let red = 12;
+        let green = 13;
+        let blue = 14;
+        let is_permitted = |game: &Vec<Set>| {
+            game.iter().all(|set| {
+                set.colors.iter().all(|(count, color)| {
+                    let permitted = match color.as_str() {
+                        "red" => count <= &red,
+                        "green" => count <= &green,
+                        "blue" => count <= &blue,
+                        _ => unreachable!(),
+                    };
+                    info!(color, count, red, green, blue, "permitted?");
+                    permitted
+                })
+            })
+        };
+
+        let r = self
+            .games
+            .iter()
+            .filter(|(_, game)| is_permitted(game))
+            .map(|(id, game)| {
+                info!(id, game = debug(game), "permitted");
+                (id, game)
+            })
+            .map(|(id, _)| *id as ResultType)
+            .sum();
         // Implement for problem
-        Ok(0)
+        Ok(r)
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
-        Ok(0)
+        let r = self
+            .games
+            .values()
+            .map(|game| {
+                let mut min_red = 0;
+                let mut min_green = 0;
+                let mut min_blue = 0;
+                for g in game {
+                    for (count, color) in &g.colors {
+                        match color.as_str() {
+                            "red" if *count > min_red => min_red = *count,
+                            "green" if *count > min_green => min_green = *count,
+                            "blue" if *count > min_blue => min_blue = *count,
+                            _ => {}
+                        };
+                    }
+                }
+                (min_red, min_green, min_blue)
+            })
+            .map(|min| min.0 * min.1 * min.2)
+            .sum();
+        Ok(r)
     }
 }
 
-#[allow(unused_variables, unused_mut)]
+impl Solution {
+    fn add_game(&mut self, id: usize, sets: Vec<Set>) {
+        self.games.insert(id, sets);
+    }
+}
+
 impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     type Error = std::io::Error;
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for line in reader.lines().flatten() {
-            // Implement for problem
+        for (id, line) in reader.lines().flatten().enumerate() {
+            if let Some((_game, sets)) = line.split_once(':') {
+                let sets = sets.split(';').map(Set::from).collect();
+                solution.add_game(id + 1, sets);
+            }
         }
         Ok(solution)
+    }
+}
+
+#[derive(Debug)]
+struct Set {
+    colors: Vec<(u64, String)>,
+}
+impl From<&str> for Set {
+    fn from(value: &str) -> Self {
+        debug!(value, "parse 1");
+        let r = regex::Regex::new(r"^(?<count>\d+)\s+(?<color>\w+)").unwrap();
+        let colors = value
+            .split(',')
+            .map(|s| {
+                debug!(s, "parse 2");
+                let c = r.captures(s.trim()).unwrap();
+                let count = c.name("count").unwrap().as_str().parse().unwrap();
+                let color = c.name("color").unwrap().as_str();
+                (count, color.to_owned())
+            })
+            .collect();
+        debug!(value, colors = debug(&colors), "parse");
+        Self { colors }
     }
 }
 #[cfg(test)]
