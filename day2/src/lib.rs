@@ -23,13 +23,12 @@ impl utils::Solution for Solution {
         let is_permitted = |game: &Vec<Set>| {
             game.iter().all(|set| {
                 set.colors.iter().all(|(count, color)| {
-                    let permitted = match color.as_str() {
-                        "red" => count <= &red,
-                        "green" => count <= &green,
-                        "blue" => count <= &blue,
-                        _ => unreachable!(),
+                    let permitted = match color {
+                        Color::Red => count <= &red,
+                        Color::Green => count <= &green,
+                        Color::Blue => count <= &blue,
                     };
-                    info!(color, count, red, green, blue, "permitted?");
+                    debug!(color = debug(color), count, red, green, blue, "permitted?");
                     permitted
                 })
             })
@@ -59,10 +58,10 @@ impl utils::Solution for Solution {
                 let mut min_blue = 0;
                 for g in game {
                     for (count, color) in &g.colors {
-                        match color.as_str() {
-                            "red" if *count > min_red => min_red = *count,
-                            "green" if *count > min_green => min_green = *count,
-                            "blue" if *count > min_blue => min_blue = *count,
+                        match color {
+                            Color::Red if *count > min_red => min_red = *count,
+                            Color::Green if *count > min_green => min_green = *count,
+                            Color::Blue if *count > min_blue => min_blue = *count,
                             _ => {}
                         };
                     }
@@ -97,8 +96,24 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 }
 
 #[derive(Debug)]
+enum Color {
+    Red,
+    Green,
+    Blue,
+}
+impl From<&str> for Color {
+    fn from(color: &str) -> Self {
+        match color {
+            "red" => Self::Red,
+            "green" => Self::Green,
+            "blue" => Self::Blue,
+            _ => panic!("illegal color {color}"),
+        }
+    }
+}
+#[derive(Debug)]
 struct Set {
-    colors: Vec<(u64, String)>,
+    colors: Vec<(u64, Color)>,
 }
 impl From<&str> for Set {
     fn from(value: &str) -> Self {
@@ -110,8 +125,8 @@ impl From<&str> for Set {
                 debug!(s, "parse 2");
                 let c = r.captures(s.trim()).unwrap();
                 let count = c.name("count").unwrap().as_str().parse().unwrap();
-                let color = c.name("color").unwrap().as_str();
-                (count, color.to_owned())
+                let color = c.name("color").unwrap().as_str().into();
+                (count, color)
             })
             .collect();
         debug!(value, colors = debug(&colors), "parse");
