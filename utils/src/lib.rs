@@ -9,3 +9,16 @@ pub use matrix::Matrix;
 pub use point::Point;
 pub use runner::{log_init, run, BaseName};
 pub use solution::{load, Solution};
+
+#[macro_export]
+macro_rules! map(
+    { $($key:expr => $value:expr),+ } => {
+        {
+            let mut m = ::std::collections::HashMap::new();
+            $(
+                m.insert($key, $value);
+            )+
+            m
+        }
+     };
+);

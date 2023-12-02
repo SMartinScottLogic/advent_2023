@@ -5,7 +5,7 @@ members = [
     "template",
     "xtask",
     "day1"
-]
+, "day2"]
 
 [workspace.dependencies]
 # Flexible concrete Error type built on std::error::Error
@@ -21,3 +21,4 @@ pathfinding = "4.1.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tracing-test = "0.2"
+lazy_static = "1.4.0"

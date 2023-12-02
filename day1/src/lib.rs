@@ -1,12 +1,31 @@
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::HashMap,
+    io::{BufRead, BufReader},
+};
 
+use lazy_static::lazy_static;
 use tracing::info;
+use utils::map;
 
 pub type ResultType = u64;
 
 #[derive(Debug, Default)]
 pub struct Solution {
     lines: Vec<String>,
+}
+
+lazy_static! {
+    static ref NAME_MAP: HashMap<&'static str, char> = map! {
+        "one" => '1',
+        "two" => '2',
+        "three" => '3',
+        "four" => '4',
+        "five" => '5',
+        "six" => '6',
+        "seven" => '7',
+        "eight" => '8',
+        "nine" => '9'
+    };
 }
 
 impl utils::Solution for Solution {
@@ -44,29 +63,13 @@ impl utils::Solution for Solution {
                 if i >= line.len() {
                     break;
                 }
-                let c = {
-                    if line[i..].starts_with("one") {
-                        '1'
-                    } else if line[i..].starts_with("two") {
-                        '2'
-                    } else if line[i..].starts_with("three") {
-                        '3'
-                    } else if line[i..].starts_with("four") {
-                        '4'
-                    } else if line[i..].starts_with("five") {
-                        '5'
-                    } else if line[i..].starts_with("six") {
-                        '6'
-                    } else if line[i..].starts_with("seven") {
-                        '7'
-                    } else if line[i..].starts_with("eight") {
-                        '8'
-                    } else if line[i..].starts_with("nine") {
-                        '9'
-                    } else {
-                        line.chars().nth(i).unwrap()
+                let mut c = line.chars().nth(i).unwrap();
+
+                for (name, new_c) in NAME_MAP.iter() {
+                    if line[i..].starts_with(name) {
+                        c = *new_c;
                     }
-                };
+                }
                 newline.push(c);
                 i += 1;
             }
