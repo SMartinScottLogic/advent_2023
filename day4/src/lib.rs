@@ -34,8 +34,21 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 }
 #[cfg(test)]
 mod test {
+    use super::*;
+    use std::io::BufReader;
+
+    use utils::Solution;
+
     #[test]
     fn stub() {
         assert_eq!(1 + 1, 2);
+    }
+
+    #[test]
+    fn read() {
+        let input = "debug";
+        let r = BufReader::new(input.as_bytes());
+        let s = crate::Solution::try_from(r).unwrap();
+        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
     }
 }
