@@ -51,17 +51,9 @@ impl utils::Solution for Solution {
             let unused_count = *count.get(&id).unwrap();
             if instance_count > 0 {
                 for i in 1..=instance_count {
-                    if i + id >= self.cards.len() {
-                        break;
+                    if let Some(v) = count.get_mut(&(i + id)) {
+                        *v += unused_count
                     }
-                    debug!(
-                        source = id,
-                        target = i + id,
-                        instance_count,
-                        unused_count,
-                        "add"
-                    );
-                    *count.entry(i + id).or_insert_with(|| panic!()) += unused_count;
                 }
             }
         }
