@@ -64,7 +64,7 @@ impl utils::Solution for Solution {
             !(c.is_numeric() || c == '.')
         }
 
-        let r = self
+        let r: ResultType = self
             .found_numbers
             .iter()
             .filter(|(sx, ex, y, _)| {
@@ -137,9 +137,32 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 }
 #[cfg(test)]
 mod test {
+    use super::*;
+    use utils::Solution as _;
 
     #[test]
     fn stub() {
         assert_eq!(1 + 1, 2);
+    }
+
+    #[test]
+    fn read() {
+        let input = [
+            "467..114..",
+            "...*......",
+            "..35..633.",
+            "......#...",
+            "617*......",
+            ".....+.58.",
+            "..592.....",
+            "......755.",
+            "...$.*....",
+            ".664.598..",
+        ]
+        .join("\n");
+        let r = BufReader::new(input.as_bytes());
+        let mut s = crate::Solution::try_from(r).unwrap();
+        s.analyse(false);
+        assert_eq!(4361 as ResultType, s.answer_part1(false).unwrap());
     }
 }
