@@ -1,6 +1,6 @@
 use std::{io::{BufRead, BufReader}, collections::HashMap};
 
-use tracing::info;
+use tracing::debug;
 
 pub type ResultType = u64;
 
@@ -31,23 +31,27 @@ impl utils::Solution for Solution {
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
         let result = self.seeds.iter().map(|seed| {
-            let soil = self.map("seed-to-soil", *seed);
-            let fertilizer = self.map("soil-to-fertilizer", soil);
-            let water = self.map("fertilizer-to-water", fertilizer);
-            let light = self.map("water-to-light", water);
-            let temperature = self.map("light-to-temperature", light);
-            let humidity = self.map("temperature-to-humidity", temperature);
-            let location = self.map("humidity-to-location", humidity);
-            info!(seed, soil, fertilizer, water, light, temperature, humidity, location, "seed");
-            location
+            self.get_location(*seed)
         }).min().unwrap();
         // Implement for problem
         Ok(result)
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
+        let mut min_location = None;
+        for (start, len) in self.seeds.chunks(2).map(|v| (v[0], v[1])) {
+            for delta in 0..len {
+                let seed = start + delta;
+                let location = self.get_location(seed);
+                match min_location {
+                    None => min_location = Some(location),
+                    Some(v) if v > location => min_location = Some(location),
+                    _ => {}
+                }
+            }
+        }
         // Implement for problem
-        Ok(0)
+        Ok(min_location.unwrap())
     }
 }
 
@@ -67,6 +71,17 @@ impl Solution {
             }
         }
         return source;
+    }
+    fn get_location(&self, seed: ResultType) -> ResultType {
+        let soil = self.map("seed-to-soil", seed);
+        let fertilizer = self.map("soil-to-fertilizer", soil);
+        let water = self.map("fertilizer-to-water", fertilizer);
+        let light = self.map("water-to-light", water);
+        let temperature = self.map("light-to-temperature", light);
+        let humidity = self.map("temperature-to-humidity", temperature);
+        let location = self.map("humidity-to-location", humidity);
+        debug!(seed, soil, fertilizer, water, light, temperature, humidity, location, "seed");
+        location
     }
 }
 
