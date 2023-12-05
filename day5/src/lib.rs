@@ -1,10 +1,14 @@
-use std::{io::{BufRead, BufReader}, collections::HashMap};
+use std::{
+    cmp::min,
+    collections::HashMap,
+    io::{BufRead, BufReader},
+};
 
 use tracing::debug;
 
-pub type ResultType = u64;
+pub type ResultType = i64;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct RangeMap {
     source_start: ResultType,
     dest_start: ResultType,
@@ -15,8 +19,8 @@ impl RangeMap {
         seed >= self.source_start && seed < self.source_start + self.range_length
     }
     fn convert(&self, seed: ResultType) -> ResultType {
-        let delta = self.dest_start as i64 - self.source_start as i64;
-        (seed as i64 + delta).try_into().unwrap()
+        let delta = self.dest_start - self.source_start;
+        seed + delta
     }
 }
 #[derive(Debug, Default)]
@@ -30,28 +34,35 @@ impl utils::Solution for Solution {
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        let result = self.seeds.iter().map(|seed| {
-            self.get_location(*seed)
-        }).min().unwrap();
+        let result = self
+            .seeds
+            .iter()
+            .map(|seed| self.get_location(*seed))
+            .min()
+            .unwrap();
         // Implement for problem
         Ok(result)
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        let mut min_location = None;
-        for (start, len) in self.seeds.chunks(2).map(|v| (v[0], v[1])) {
-            for delta in 0..len {
-                let seed = start + delta;
-                let location = self.get_location(seed);
-                match min_location {
-                    None => min_location = Some(location),
-                    Some(v) if v > location => min_location = Some(location),
-                    _ => {}
-                }
-            }
-        }
+        let v = self
+            .seeds
+            .chunks(2)
+            .map(|v| (v[0], v[1]))
+            .flat_map(|v| Self::transform(v, self.maps.get("seed-to-soil").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("soil-to-fertilizer").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("fertilizer-to-water").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("water-to-light").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("light-to-temperature").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("temperature-to-humidity").unwrap()))
+            .flat_map(|v| Self::transform(v, self.maps.get("humidity-to-location").unwrap()))
+            .collect::<Vec<_>>();
+        debug!(v = debug(&v), "v");
+
+        let result = v.iter().map(|v| v.0).min().unwrap();
+
         // Implement for problem
-        Ok(min_location.unwrap())
+        Ok(result)
     }
 }
 
@@ -59,9 +70,19 @@ impl Solution {
     fn set_seeds(&mut self, seeds: Vec<ResultType>) {
         self.seeds = seeds;
     }
-    fn add_map(&mut self, name: &str, source_start: ResultType, dest_start: ResultType, range_length: ResultType) {
-        let map = self.maps.entry(name.to_owned()).or_insert_with(Vec::new);
-        map.push(RangeMap {source_start, dest_start, range_length});
+    fn add_map(
+        &mut self,
+        name: &str,
+        source_start: ResultType,
+        dest_start: ResultType,
+        range_length: ResultType,
+    ) {
+        let map = self.maps.entry(name.to_owned()).or_default();
+        map.push(RangeMap {
+            source_start,
+            dest_start,
+            range_length,
+        });
     }
     fn map(&self, name: &str, source: ResultType) -> ResultType {
         let maps = self.maps.get(name).unwrap();
@@ -70,7 +91,7 @@ impl Solution {
                 return map.convert(source);
             }
         }
-        return source;
+        source
     }
     fn get_location(&self, seed: ResultType) -> ResultType {
         let soil = self.map("seed-to-soil", seed);
@@ -80,7 +101,10 @@ impl Solution {
         let temperature = self.map("light-to-temperature", light);
         let humidity = self.map("temperature-to-humidity", temperature);
         let location = self.map("humidity-to-location", humidity);
-        debug!(seed, soil, fertilizer, water, light, temperature, humidity, location, "seed");
+        debug!(
+            seed,
+            soil, fertilizer, water, light, temperature, humidity, location, "seed"
+        );
         location
     }
 }
@@ -90,7 +114,9 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     type Error = std::io::Error;
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
-        let r = regex::Regex::new(r"^(?<dest_start>\d+)\s+(?<source_start>\d+)\s+(?<range_len>\d+)$").unwrap();
+        let r =
+            regex::Regex::new(r"^(?<dest_start>\d+)\s+(?<source_start>\d+)\s+(?<range_len>\d+)$")
+                .unwrap();
 
         let mut solution = Self::default();
         let mut stage = 0;
@@ -106,7 +132,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                 // seeds
                 0 => {
                     let (_, seeds) = line.split_once(": ").unwrap();
-                    let seeds = seeds.split(" ").map(|v| v.parse().unwrap()).collect();
+                    let seeds = seeds.split(' ').map(|v| v.parse().unwrap()).collect();
                     solution.set_seeds(seeds);
                 }
                 _ if !has_header => {
@@ -131,7 +157,12 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                     let dest_start = c.name("dest_start").unwrap().as_str().parse().unwrap();
                     let source_start = c.name("source_start").unwrap().as_str().parse().unwrap();
                     let range_length = c.name("range_len").unwrap().as_str().parse().unwrap();
-                    solution.add_map("fertilizer-to-water", source_start, dest_start, range_length);
+                    solution.add_map(
+                        "fertilizer-to-water",
+                        source_start,
+                        dest_start,
+                        range_length,
+                    );
                 }
                 4 => {
                     let c = r.captures(&line).unwrap();
@@ -145,43 +176,134 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                     let dest_start = c.name("dest_start").unwrap().as_str().parse().unwrap();
                     let source_start = c.name("source_start").unwrap().as_str().parse().unwrap();
                     let range_length = c.name("range_len").unwrap().as_str().parse().unwrap();
-                    solution.add_map("light-to-temperature", source_start, dest_start, range_length);
+                    solution.add_map(
+                        "light-to-temperature",
+                        source_start,
+                        dest_start,
+                        range_length,
+                    );
                 }
                 6 => {
                     let c = r.captures(&line).unwrap();
                     let dest_start = c.name("dest_start").unwrap().as_str().parse().unwrap();
                     let source_start = c.name("source_start").unwrap().as_str().parse().unwrap();
                     let range_length = c.name("range_len").unwrap().as_str().parse().unwrap();
-                    solution.add_map("temperature-to-humidity", source_start, dest_start, range_length);
+                    solution.add_map(
+                        "temperature-to-humidity",
+                        source_start,
+                        dest_start,
+                        range_length,
+                    );
                 }
                 7 => {
                     let c = r.captures(&line).unwrap();
                     let dest_start = c.name("dest_start").unwrap().as_str().parse().unwrap();
                     let source_start = c.name("source_start").unwrap().as_str().parse().unwrap();
                     let range_length = c.name("range_len").unwrap().as_str().parse().unwrap();
-                    solution.add_map("humidity-to-location", source_start, dest_start, range_length);
+                    solution.add_map(
+                        "humidity-to-location",
+                        source_start,
+                        dest_start,
+                        range_length,
+                    );
                 }
-                _ => panic!("unknown parse stage {stage}: {line}")
+                _ => panic!("unknown parse stage {stage}: {line}"),
             }
-            if stage == 0 {
-
-            }
+            if stage == 0 {}
         }
         Ok(solution)
     }
 }
+
+impl Solution {
+    fn transform(
+        (start, len): (ResultType, ResultType),
+        map: &[RangeMap],
+    ) -> Vec<(ResultType, ResultType)> {
+        let mut start = start;
+        let end = start + len;
+        let mut map = map.to_vec();
+        map.sort_by_cached_key(|v| v.source_start);
+
+        let mut result = Vec::new();
+        for range in map {
+            // Entirely before current position
+            if range.source_start + range.range_length < start {
+                continue;
+            }
+            // Entirely after range
+            if range.source_start > end {
+                continue;
+            }
+            // Overlapping
+
+            // Untransformed (before mapping)
+            if range.source_start > start {
+                debug!(start, len = (range.source_start - start), "Untransformed");
+                result.push((start, range.source_start - start));
+                start = range.source_start;
+            }
+            // Transformed section
+            let section_len = min(range.range_length - start + range.source_start, end - start);
+            let section_start = start + range.dest_start - range.source_start;
+            result.push((section_start, section_len));
+            debug!(
+                start,
+                new_start = section_start,
+                len = section_len,
+                "Transformed"
+            );
+            start += section_len;
+        }
+        // Unconsumed end
+        if start < end {
+            result.push((start, end - start));
+            debug!(start, len = (end - start), "Unconsumed");
+        }
+        result
+    }
+}
 #[cfg(test)]
 mod test {
-    use super::*;
-    use std::io::BufReader;
+    use tracing_test::traced_test;
 
-    use utils::Solution;
+    use super::*;
 
     #[test]
-    fn read() {
-        let input = "replace for problem";
-        let r = BufReader::new(input.as_bytes());
-        let s = crate::Solution::try_from(r).unwrap();
-        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
+    #[traced_test]
+    fn transform_a() {
+        let input = (100, 50);
+        let next = [RangeMap {
+            source_start: 0,
+            dest_start: 10,
+            range_length: 50,
+        }];
+        let result = Solution::transform(input, next.as_ref());
+        assert_eq!(vec![(100, 50)], result);
+    }
+
+    #[test]
+    #[traced_test]
+    fn transform_b() {
+        let input = (100, 50);
+        let next = [
+            RangeMap {
+                source_start: 0,
+                dest_start: 10,
+                range_length: 50,
+            }, // a
+            RangeMap {
+                source_start: 75,
+                dest_start: 20,
+                range_length: 30,
+            }, // b
+            RangeMap {
+                source_start: 125,
+                dest_start: 90,
+                range_length: 50,
+            }, // c
+        ];
+        let result = Solution::transform(input, next.as_ref());
+        assert_eq!(vec![(45, 5), (105, 20), (90, 25)], result);
     }
 }
