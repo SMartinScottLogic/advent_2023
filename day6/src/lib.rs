@@ -99,16 +99,4 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 }
 #[cfg(test)]
 mod test {
-    use super::*;
-    use std::io::BufReader;
-
-    use utils::Solution;
-
-    #[test]
-    fn read() {
-        let input = "replace for problem";
-        let r = BufReader::new(input.as_bytes());
-        let s = crate::Solution::try_from(r).unwrap();
-        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
-    }
 }
