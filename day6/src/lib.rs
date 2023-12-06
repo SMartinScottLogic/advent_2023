@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader};
 
-use tracing::{debug, info};
+use tracing::debug;
 
 pub type ResultType = u64;
 
@@ -17,43 +17,20 @@ impl utils::Solution for Solution {
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        let mut wins = Vec::new();
-        for (race, max_hold) in self.times.iter().enumerate() {
-            let target_distance = self.distances[race];
-            let mut num_wins = 0;
-            for hold in 0..=*max_hold {
-                let speed = hold;
-                let distance = speed * (max_hold - hold);
-                debug!(hold, distance, target_distance, "travel");
-                if distance > target_distance {
-                    num_wins += 1;
-                }
-            }
-            wins.push(num_wins);
-        }
-        info!(wins = debug(&wins), "wins");
-        let result = wins.iter().fold(1, |mut acc, v| {
-            acc *= v;
-            acc
-        });
-        // Implement for problem
+        let result = self
+            .times
+            .iter()
+            .enumerate()
+            .map(|(race, max_hold)| Self::calculate_wins(self.distances[race], *max_hold))
+            .fold(1, |mut acc, v| {
+                acc *= v;
+                acc
+            });
         Ok(result)
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        let target_distance = self.distance;
-        let max_hold = self.time;
-        let mut num_wins = 0;
-
-        for hold in 0..=max_hold {
-            let speed = hold;
-            let distance = speed * (max_hold - hold);
-            debug!(hold, distance, target_distance, "travel");
-            if distance > target_distance {
-                num_wins += 1;
-            }
-        }
-        // Implement for problem
+        let num_wins = Self::calculate_wins(self.distance, self.time);
         Ok(num_wins)
     }
 }
@@ -70,6 +47,18 @@ impl Solution {
     }
     fn set_distance(&mut self, distance: u64) {
         self.distance = distance;
+    }
+    fn calculate_wins(target_distance: u64, max_hold: u64) -> ResultType {
+        let mut num_wins = 0;
+        for hold in 0..=max_hold {
+            let speed = hold;
+            let distance = speed * (max_hold - hold);
+            debug!(hold, distance, target_distance, "travel");
+            if distance > target_distance {
+                num_wins += 1;
+            }
+        }
+        num_wins
     }
 }
 
