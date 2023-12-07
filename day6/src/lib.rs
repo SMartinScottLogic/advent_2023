@@ -98,5 +98,4 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     }
 }
 #[cfg(test)]
-mod test {
-}
+mod test {}
