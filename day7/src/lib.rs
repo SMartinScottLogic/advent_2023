@@ -36,14 +36,86 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
+        let strength = "J23456789TQKA";
+        let mut hands = self.hands.iter().map(|a| {
+            let best_hand = Self::best_hand(strength, &a.hand);
+            debug!(a = debug(a), best_hand, "best hand");
+            (best_hand, a)
+        }).collect::<Vec<_>>();
+        hands.sort_by(|a, b| {
+            let a_type = std::convert::Into::<Type>::into(a.0.as_str());
+            let b_type = std::convert::Into::<Type>::into(b.0.as_str());
+            let o = match a_type.partial_cmp(&b_type).unwrap() {
+                std::cmp::Ordering::Equal => {
+                    a.1.hand.chars().map(|c| (strength.find(c).unwrap()))
+                    .cmp(b.1.hand.chars().map(|c| (strength.find(c).unwrap())))
+                }
+                c => c
+            };
+            debug!(o = debug(o), a = debug(a), a_type = debug(&a_type), b = debug(b), b_type = debug(&b_type), "compare");
+            o
+        });
+        debug!(hands = debug(&hands), "sorted");
+        let result = hands.iter().enumerate().map(|(i, h)| {(i+1) as u64 * h.1.bid}).sum();
         // Implement for problem
-        Ok(0)
+        Ok(result)
     }
 }
 
 impl Solution {
+    fn compare_hands(strength: &str, a_hand: &str, b_hand: &str) -> std::cmp::Ordering {
+        let a_type = std::convert::Into::<Type>::into(a_hand);
+        let b_type = std::convert::Into::<Type>::into(b_hand);
+        let o = match a_type.partial_cmp(&b_type).unwrap() {
+            std::cmp::Ordering::Equal => {
+                a_hand.chars().map(|c| (strength.find(c).unwrap()))
+                .cmp(b_hand.chars().map(|c| (strength.find(c).unwrap())))
+            }
+            c => c
+        };
+        debug!(o = debug(o), a_hand, a_type = debug(&a_type), b_hand, b_type = debug(&b_type), "compare");
+        o
+    }
     fn add_hand(&mut self, hand: Hand) {
         self.hands.push(hand);
+    }
+
+    fn best_hand(strength: &str, hand: &str) -> String {
+        let mut best_hand: Option<String> = None;
+        let c = hand.chars().fold(HashMap::<char, u64>::new(), |mut acc, v| {
+            *acc.entry(v).or_default() += 1;
+            acc
+        });
+        if c.get(&'J').is_none() {
+            return hand.to_string();
+        }
+        for replacement in strength.chars() {
+            if replacement == 'J' {
+                continue;
+            }
+            let new_hand = hand.replacen('J', &replacement.to_string(), 1);
+            match new_hand.find('J') {
+                Some(_) => {
+                let inner_best_hand = Self::best_hand(strength, &new_hand);
+                let best = match best_hand {
+                    None => inner_best_hand,
+                    Some(hand) if Self::compare_hands(strength, &inner_best_hand, &hand) == std::cmp::Ordering::Greater => inner_best_hand,
+                    Some(hand) => hand,
+                };
+                best_hand = Some(best);
+            } None => {
+                let best = match best_hand {
+                    None => new_hand.clone(),
+                    Some(hand) if Self::compare_hands(strength, &new_hand, &hand) == std::cmp::Ordering::Greater => new_hand.clone(),
+                    Some(hand) => hand,
+                };
+                best_hand = Some(best);
+            }}
+        }
+        match best_hand {
+            Some(v) => v,
+            None => panic!("No best hand ?!?")
+        }
     }
 }
 
