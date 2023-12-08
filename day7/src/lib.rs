@@ -267,5 +267,4 @@ impl From<&str> for Type {
 }
 
 #[cfg(test)]
-mod test {
-}
+mod test {}
