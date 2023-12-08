@@ -1,24 +1,13 @@
-use std::{io::{BufRead, BufReader}, collections::HashMap};
+use std::{
+    collections::HashMap,
+    io::{BufRead, BufReader},
+};
 
 use anyhow::Context;
-use tracing::{info, debug};
+use tracing::debug;
+use utils::math::lowest_common_multiple_many;
 
 pub type ResultType = u64;
-fn lcm(nums: &[u64]) -> u64 {
-    if nums.len() == 1 {
-        nums[0]
-    } else {
-        let others = lcm(&nums[1..]);
-        nums[0] * others / gcd(nums[0], others)
-    }
-}
-fn gcd(a: u64, b: u64) -> u64 {
-    if b == 0 {
-        a
-    } else {
-        gcd(b, a % b)
-    }
-}
 
 #[derive(Debug, Default)]
 pub struct Solution {
@@ -30,7 +19,8 @@ impl Solution {
         self.instructions = instructions.to_string();
     }
     fn add_adjacency(&mut self, adjacency: Adjacency) {
-        self.network.insert(adjacency.name, (adjacency.left, adjacency.right));
+        self.network
+            .insert(adjacency.name, (adjacency.left, adjacency.right));
     }
 }
 impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
@@ -73,28 +63,22 @@ impl Solution {
     fn next_z(&self, node: &str, steps: u64) -> (String, u64) {
         let num_instructions = self.instructions.len() as u64;
         let mut delta = 0;
-        let mut node = node.clone();
-        info!(node, steps, delta, "start");
+        let mut node = node;
         loop {
             let instruction_num = ((steps + delta) % num_instructions) as usize;
             let instruction = self.instructions.chars().nth(instruction_num).unwrap();
             let (left, right) = self.network.get(node).unwrap();
             node = match instruction {
-                'L' => {
-                    left
-                }
-                'R' => {
-                    right
-                }
-                _ => panic!()
+                'L' => left,
+                'R' => right,
+                _ => panic!(),
             };
             delta += 1;
-            debug!(node, steps, delta, "step");
             if node.ends_with('Z') {
                 break;
             }
         }
-        info!(node, steps, delta, "jump");
+        debug!(node, steps, delta, "jump");
         (node.to_string(), delta)
     }
 }
@@ -109,16 +93,16 @@ impl utils::Solution for Solution {
             if node == "ZZZ" {
                 break;
             }
-            let instuction = self.instructions.chars().nth(steps % self.instructions.len()).unwrap();
+            let instuction = self
+                .instructions
+                .chars()
+                .nth(steps % self.instructions.len())
+                .unwrap();
             let (left, right) = self.network.get(node).context("lookup node")?;
             node = match instuction {
-                'L' => {
-                    left
-                }
-                'R' => {
-                    right
-                }
-                _ => panic!()
+                'L' => left,
+                'R' => right,
+                _ => panic!(),
             };
             steps += 1;
             debug!(node, steps, "step");
@@ -128,28 +112,15 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        let nodes= self.network.keys().filter(|k| k.ends_with('A')).cloned().map(|s| (s, 0_u64)).collect::<Vec<_>>();
-        info!(num = nodes.len(), "ghosts");
-
-        let d = nodes.iter().map(|(node, steps)| self.next_z(node, *steps).1).collect::<Vec<_>>();
-        let result = lcm(&d[..]);
-        info!(result, "guess");
-
+        let d = self
+            .network
+            .keys()
+            .filter(|k| k.ends_with('A'))
+            .map(|node| self.next_z(node, 0).1)
+            .collect::<Vec<_>>();
+        let result = lowest_common_multiple_many(&d[..]);
         Ok(result)
     }
 }
 #[cfg(test)]
-mod test {
-    use super::*;
-    use std::io::BufReader;
-
-    use utils::Solution;
-
-    #[test]
-    fn read() {
-        let input = "replace for problem";
-        let r = BufReader::new(input.as_bytes());
-        let s = crate::Solution::try_from(r).unwrap();
-        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
-    }
-}
+mod test {}

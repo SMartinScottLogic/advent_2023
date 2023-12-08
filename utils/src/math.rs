@@ -19,3 +19,12 @@ pub fn lowest_common_multiple(a: u64, b: u64) -> u64 {
 pub fn lowest_common_multiple_3(a: u64, b: u64, c: u64) -> u64 {
     lowest_common_multiple(a, lowest_common_multiple(b, c))
 }
+
+pub fn lowest_common_multiple_many(nums: &[u64]) -> u64 {
+    if nums.len() == 1 {
+        nums[0]
+    } else {
+        let others = lowest_common_multiple_many(&nums[1..]);
+        nums[0] * others / greatest_common_divisor(nums[0], others)
+    }
+}
