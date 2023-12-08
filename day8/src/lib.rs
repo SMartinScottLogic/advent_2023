@@ -1,8 +1,24 @@
 use std::{io::{BufRead, BufReader}, collections::HashMap};
 
+use anyhow::Context;
 use tracing::{info, debug};
 
 pub type ResultType = u64;
+fn lcm(nums: &[u64]) -> u64 {
+    if nums.len() == 1 {
+        nums[0]
+    } else {
+        let others = lcm(&nums[1..]);
+        nums[0] * others / gcd(nums[0], others)
+    }
+}
+fn gcd(a: u64, b: u64) -> u64 {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct Solution {
@@ -53,19 +69,48 @@ impl From<&str> for Adjacency {
     }
 }
 
+impl Solution {
+    fn next_z(&self, node: &str, steps: u64) -> (String, u64) {
+        let num_instructions = self.instructions.len() as u64;
+        let mut delta = 0;
+        let mut node = node.clone();
+        info!(node, steps, delta, "start");
+        loop {
+            let instruction_num = ((steps + delta) % num_instructions) as usize;
+            let instruction = self.instructions.chars().nth(instruction_num).unwrap();
+            let (left, right) = self.network.get(node).unwrap();
+            node = match instruction {
+                'L' => {
+                    left
+                }
+                'R' => {
+                    right
+                }
+                _ => panic!()
+            };
+            delta += 1;
+            debug!(node, steps, delta, "step");
+            if node.ends_with('Z') {
+                break;
+            }
+        }
+        info!(node, steps, delta, "jump");
+        (node.to_string(), delta)
+    }
+}
 impl utils::Solution for Solution {
     type Result = anyhow::Result<ResultType>;
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        let mut steps = 0;
         let mut node = "AAA";
+        let mut steps = 0;
         loop {
             if node == "ZZZ" {
                 break;
             }
             let instuction = self.instructions.chars().nth(steps % self.instructions.len()).unwrap();
-            let (left, right) = self.network.get(node).unwrap();
+            let (left, right) = self.network.get(node).context("lookup node")?;
             node = match instuction {
                 'L' => {
                     left
@@ -83,8 +128,14 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
-        Ok(0)
+        let nodes= self.network.keys().filter(|k| k.ends_with('A')).cloned().map(|s| (s, 0_u64)).collect::<Vec<_>>();
+        info!(num = nodes.len(), "ghosts");
+
+        let d = nodes.iter().map(|(node, steps)| self.next_z(node, *steps).1).collect::<Vec<_>>();
+        let result = lcm(&d[..]);
+        info!(result, "guess");
+
+        Ok(result)
     }
 }
 #[cfg(test)]
