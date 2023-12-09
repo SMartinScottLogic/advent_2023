@@ -4,7 +4,20 @@ pub type ResultType = u64;
 
 #[derive(Debug, Default)]
 pub struct Solution {}
+impl Solution {}
 
+#[allow(unused_variables, unused_mut)]
+impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
+    type Error = std::io::Error;
+
+    fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
+        let mut solution = Self::default();
+        for (id, line) in reader.lines().flatten().enumerate() {
+            // Implement for problem
+        }
+        Ok(solution)
+    }
+}
 impl utils::Solution for Solution {
     type Result = anyhow::Result<ResultType>;
     fn analyse(&mut self, _is_full: bool) {}
@@ -20,18 +33,6 @@ impl utils::Solution for Solution {
     }
 }
 
-#[allow(unused_variables, unused_mut)]
-impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
-    type Error = std::io::Error;
-
-    fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
-        let mut solution = Self::default();
-        for line in reader.lines().flatten() {
-            // Implement for problem
-        }
-        Ok(solution)
-    }
-}
 #[cfg(test)]
 mod test {
     use super::*;
