@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 tracing = {workspace = true}
 anyhow = {workspace = true}
-regex = "1.10.2"
+regex = {workspace = true}
 
 [dependencies.utils]
 path = "../utils"
