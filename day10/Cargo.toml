@@ -9,7 +9,7 @@ tracing-test = {workspace = true}
 anyhow = {workspace = true}
 regex = {workspace = true}
 lazy_static = {workspace = true}
-pathfinding = "4.4.0"
+pathfinding = {workspace = true}
 
 [dependencies.utils]
 path = "../utils"
