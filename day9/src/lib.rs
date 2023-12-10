@@ -23,14 +23,12 @@ impl Solution {
                 if last.iter().all(|v| *v == 0 as ResultType) {
                     break;
                 }
-                let next = last
-                    .iter()
-                    .fold((Vec::new(), None), |(mut acc, last), v| {
-                        if let Some(l) = last {
-                            acc.push(v - l);
-                        }
-                        (acc, Some(v))
-                    });
+                let next = last.iter().fold((Vec::new(), None), |(mut acc, last), v| {
+                    if let Some(l) = last {
+                        acc.push(v - l);
+                    }
+                    (acc, Some(v))
+                });
                 debug!(last = debug(&last), next = debug(&next), "next");
                 diff.push_back(next.0);
             } else {
@@ -91,5 +89,4 @@ impl utils::Solution for Solution {
 }
 
 #[cfg(test)]
-mod test {
-}
+mod test {}
