@@ -5,20 +5,20 @@ members = [
     "template",
     "xtask",
     "day1"
-, "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10"]
+, "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10", "day11"]
 
 [workspace.dependencies]
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.66"
+anyhow = "1.0"
 # A dead simple ANSI terminal color painting library.
 yansi = "1.0.0-gamma"
-itertools = "0.12.0"
+itertools = "0.12"
 # An implementation of regular expressions for Rust. This implementation uses finite automata …
-regex = "1.7.0"
+regex = "1.10"
 # Pathfinding, flow, and graph algorithms
-pathfinding = "4.1.1"
+pathfinding = "4.4"
 
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tracing-test = "0.2"
-lazy_static = "1.4.0"
+lazy_static = "1.4"

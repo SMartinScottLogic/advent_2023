@@ -38,9 +38,11 @@ mod test {
     use super::*;
     use std::io::BufReader;
 
+    use tracing_test::traced_test;
     use utils::Solution;
 
     #[test]
+    #[traced_test]
     fn read() {
         let input = "replace for problem";
         let r = BufReader::new(input.as_bytes());
