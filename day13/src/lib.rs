@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader};
 
-use tracing::{debug, info};
+use tracing::debug;
 use utils::Matrix;
 
 pub type ResultType = u64;
@@ -14,8 +14,13 @@ impl Solution {
         self.grids.push(grid);
     }
 
-    fn test_vertical_mirror(grid: &Matrix<char>, mirror_after: isize) -> bool {
+    fn difference(a: &str, b: &str) -> usize {
+        a.chars().zip(b.chars()).filter(|(a, b)| a != b).count()
+    }
+
+    fn test_vertical_mirror(grid: &Matrix<char>, mirror_after: isize, smudges: usize) -> bool {
         let (maxx, maxy) = grid.dimensions();
+        let mut differences = 0;
         for y in 0..=maxy {
             let mut left = String::new();
             let mut right = String::new();
@@ -25,29 +30,28 @@ impl Solution {
                 left.push(*grid.get(mirror_after - i, y).unwrap());
                 right.push(*grid.get(mirror_after + 1 + i, y).unwrap());
                 debug!(mirror_after, i, left, right, "step");
-                if left != right {
-                    return false;
-                }
             }
+            differences += Self::difference(&left, &right);
             debug!(mirror_after, range, maxx, left, right, "range");
         }
-        true
+        differences == smudges
     }
 
-    fn find_vertical_mirror(grid: &Matrix<char>) -> Vec<isize> {
+    fn find_vertical_mirror(grid: &Matrix<char>, smudges: usize) -> Vec<isize> {
         let (maxx, _) = grid.dimensions();
         let mut mirrors = Vec::new();
         // Vertical mirror
         for x in 0..maxx {
-            if Self::test_vertical_mirror(grid, x) {
-                info!(x, "vertical");
+            if Self::test_vertical_mirror(grid, x, smudges) {
+                debug!(x, "vertical");
                 mirrors.push(x);
             }
         }
         mirrors
     }
-    fn test_horizontal_mirror(grid: &Matrix<char>, mirror_after: isize) -> bool {
+    fn test_horizontal_mirror(grid: &Matrix<char>, mirror_after: isize, smudges: usize) -> bool {
         let (maxx, maxy) = grid.dimensions();
+        let mut differences = 0;
         for x in 0..=maxx {
             let mut top = String::new();
             let mut bottom = String::new();
@@ -57,22 +61,20 @@ impl Solution {
                 top.push(*grid.get(x, mirror_after - i).unwrap());
                 bottom.push(*grid.get(x, mirror_after + 1 + i).unwrap());
                 debug!(mirror_after, i, top, bottom, "step");
-                if top != bottom {
-                    return false;
-                }
             }
+            differences += Self::difference(&top, &bottom);
             debug!(mirror_after, range, maxx, top, bottom, "range");
         }
-        true
+        differences == smudges
     }
 
-    fn find_horizontal_mirror(grid: &Matrix<char>) -> Vec<isize> {
+    fn find_horizontal_mirror(grid: &Matrix<char>, smudges: usize) -> Vec<isize> {
         let (_, maxy) = grid.dimensions();
         // Vertical mirror
         let mut mirrors = Vec::new();
         for y in 0..maxy {
-            if Self::test_horizontal_mirror(grid, y) {
-                info!(y, "horizontal");
+            if Self::test_horizontal_mirror(grid, y, smudges) {
+                debug!(y, "horizontal");
                 mirrors.push(y);
             }
         }
@@ -116,12 +118,12 @@ impl utils::Solution for Solution {
         let mut horizontal_mirrors = Vec::new();
         let mut vertical_mirrors = Vec::new();
         for grid in &self.grids {
-            let mut mirrors = Self::find_vertical_mirror(grid);
+            let mut mirrors = Self::find_vertical_mirror(grid, 0);
             vertical_mirrors.append(&mut mirrors);
-            let mut mirrors = Self::find_horizontal_mirror(grid);
+            let mut mirrors = Self::find_horizontal_mirror(grid, 0);
             horizontal_mirrors.append(&mut mirrors);
         }
-        info!(
+        debug!(
             vertical_mirrors = debug(&vertical_mirrors),
             horizontal_mirrors = debug(&horizontal_mirrors),
             "mirrors"
@@ -132,7 +134,7 @@ impl utils::Solution for Solution {
             .sum::<ResultType>();
         let v_score = vertical_mirrors
             .iter()
-            .map(|s| 1 * (*s as ResultType + 1))
+            .map(|s| *s as ResultType + 1)
             .sum::<ResultType>();
         let score = h_score + v_score;
         // Implement for problem
@@ -140,8 +142,30 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
+        let mut horizontal_mirrors = Vec::new();
+        let mut vertical_mirrors = Vec::new();
+        for grid in &self.grids {
+            let mut mirrors = Self::find_vertical_mirror(grid, 1);
+            vertical_mirrors.append(&mut mirrors);
+            let mut mirrors = Self::find_horizontal_mirror(grid, 1);
+            horizontal_mirrors.append(&mut mirrors);
+        }
+        debug!(
+            vertical_mirrors = debug(&vertical_mirrors),
+            horizontal_mirrors = debug(&horizontal_mirrors),
+            "mirrors"
+        );
+        let h_score = horizontal_mirrors
+            .iter()
+            .map(|s| 100 * (*s as ResultType + 1))
+            .sum::<ResultType>();
+        let v_score = vertical_mirrors
+            .iter()
+            .map(|s| *s as ResultType + 1)
+            .sum::<ResultType>();
+        let score = h_score + v_score;
         // Implement for problem
-        Ok(0)
+        Ok(score)
     }
 }
 
