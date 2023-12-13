@@ -1,10 +1,13 @@
+#![feature(step_trait)]
 pub mod graph;
 pub mod math;
+mod grid;
 mod matrix;
 mod point;
 mod runner;
 mod solution;
 
+pub use grid::Grid;
 pub use matrix::Matrix;
 pub use point::Point;
 pub use runner::{log_init, run, BaseName};

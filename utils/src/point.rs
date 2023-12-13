@@ -1,58 +1,60 @@
-use std::ops::{Add, AddAssign, Sub};
+use std::{ops::{Add, AddAssign, Sub}, iter::Step};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord, Hash)]
-pub struct Point {
-    x: i64,
-    y: i64,
+#[derive(Debug, Clone, Copy, PartialOrd, Ord)]
+#[derive(Eq, Hash, PartialEq)]
+pub struct Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
+    x: T,
+    y: T,
 }
 
-impl Point {
-    pub const N: Self = Self { x: 0, y: -1 };
-    pub const S: Self = Self { x: 0, y: 1 };
-    pub const E: Self = Self { x: 1, y: 0 };
-    pub const W: Self = Self { x: -1, y: 0 };
+impl <T> Point<T>
+where T: Default + Step + Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash
+{
+    pub fn north(&self) -> Self { Self { x: self.x, y: T::backward(self.y, 1) }}
+    pub fn south(&self) -> Self {Self { x: self.x, y: T::forward(self.y, 1) }}
+    pub fn east(&self) -> Self {Self { x: T::forward(self.x, 1), y: self.y }}
+    pub fn west(&self) -> Self {Self { x: T::backward(self.x, 1), y: self.y }}
 
-    pub const NE: Self = Self { x: 1, y: -1 };
-    pub const NW: Self = Self { x: -1, y: -1 };
-    pub const SE: Self = Self { x: 1, y: 1 };
-    pub const SW: Self = Self { x: -1, y: 1 };
+    pub fn northeast(&self) -> Self { Self { x: T::forward(self.x, 1), y: T::backward(self.y, 1) }}
+    pub fn northwest(&self) -> Self { Self { x: T::backward(self.x, 1), y: T::backward(self.y, 1) }}
+    pub fn southeast(&self) -> Self { Self { x: T::forward(self.x, 1), y: T::forward(self.y, 1) }}
+    pub fn southwest(&self) -> Self { Self { x: T::backward(self.x, 1), y: T::forward(self.y, 1) }}
 
-    pub fn new(x: i64, y: i64) -> Self {
+    pub fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
     pub fn neighbours(&self) -> Vec<Self> {
-        [
-            Self::N,
-            Self::E,
-            Self::S,
-            Self::W,
-            Self::NE,
-            Self::SE,
-            Self::SW,
-            Self::NW,
+        vec![
+            self.north(),
+            self.east(),
+            self.south(),
+            self.west(),
+            self.northeast(),
+            self.southeast(),
+            self.southwest(),
+            self.northwest(),
         ]
-        .iter()
-        .map(|d| *self + d)
-        .collect()
     }
 
     pub fn cardinal(&self) -> Vec<Self> {
-        [Self::N, Self::E, Self::S, Self::W]
-            .iter()
-            .map(|d| *self + d)
-            .collect()
+        vec![self.north(), self.east(), self.south(), self.west()]
     }
 
-    pub fn x(&self) -> i64 {
+    pub fn x(&self) -> T {
         self.x
     }
-    pub fn y(&self) -> i64 {
+
+    pub fn y(&self) -> T {
         self.y
     }
 }
 
-impl Add<Self> for Point {
+impl <T> Add<Self> for Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -62,14 +64,18 @@ impl Add<Self> for Point {
         }
     }
 }
-impl AddAssign<Self> for Point {
+impl <T> AddAssign<Self> for Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
     }
 }
 
-impl Add<&Self> for Point {
+impl <T> Add<&Self> for Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
     type Output = Self;
 
     fn add(self, rhs: &Self) -> Self::Output {
@@ -80,7 +86,9 @@ impl Add<&Self> for Point {
     }
 }
 
-impl Sub<Self> for Point {
+impl <T> Sub<Self> for Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -91,7 +99,9 @@ impl Sub<Self> for Point {
     }
 }
 
-impl Sub<&Self> for Point {
+impl <T> Sub<&Self> for Point<T>
+where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+{
     type Output = Self;
 
     fn sub(self, rhs: &Self) -> Self::Output {
