@@ -133,10 +133,3 @@ impl From<&str> for Set {
         Self { colors }
     }
 }
-#[cfg(test)]
-mod test {
-    #[test]
-    fn stub() {
-        assert_eq!(1 + 1, 2);
-    }
-}

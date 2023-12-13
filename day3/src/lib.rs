@@ -141,11 +141,6 @@ mod test {
     use utils::Solution as _;
 
     #[test]
-    fn stub() {
-        assert_eq!(1 + 1, 2);
-    }
-
-    #[test]
     fn read() {
         let input = [
             "467..114..",
