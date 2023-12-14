@@ -89,7 +89,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
         let mut solution = Self::default();
         let mut grid = Matrix::new();
         let mut y = 0;
-        for (_, line) in reader.lines().flatten().enumerate() {
+        for line in reader.lines().map_while(Result::ok) {
             // Implement for problem
             if line.trim().is_empty() {
                 if !grid.is_empty() {
@@ -166,23 +166,5 @@ impl utils::Solution for Solution {
         let score = h_score + v_score;
         // Implement for problem
         Ok(score)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use std::io::BufReader;
-
-    use tracing_test::traced_test;
-    use utils::Solution;
-
-    #[test]
-    #[traced_test]
-    fn read() {
-        let input = "replace for problem";
-        let r = BufReader::new(input.as_bytes());
-        let s = crate::Solution::try_from(r).unwrap();
-        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
     }
 }

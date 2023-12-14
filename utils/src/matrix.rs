@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 
 #[derive(Debug, Default, Clone)]
+//TODO #[deprecated(since="0.5.0", note="please use `Grid` instead")]
 pub struct Matrix<T> {
     data: HashMap<(isize, isize), T>,
     max_x: isize,
@@ -85,7 +86,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
+    use super::*;
 
     #[test]
     fn it_works() {

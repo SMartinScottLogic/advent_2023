@@ -96,10 +96,3 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
         Ok(solution)
     }
 }
-#[cfg(test)]
-mod test {
-    #[test]
-    fn stub() {
-        assert_eq!(1 + 1, 2);
-    }
-}
