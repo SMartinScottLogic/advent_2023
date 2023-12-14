@@ -1,9 +1,9 @@
 use std::{
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{HashMap, VecDeque},
     io::{BufRead, BufReader},
 };
 
-use tracing::info;
+use tracing::debug;
 use utils::Matrix;
 
 pub type ResultType = u64;
@@ -181,7 +181,7 @@ impl utils::Solution for Solution {
             if window.len() == lookback {
             if let Some(last_seen) = seen.get(&window) {
                 let cycle_len = i - last_seen;
-                info!(i, last_seen, cycle_len, "dupe");
+                debug!(i, last_seen, cycle_len, "dupe");
                 break (i, cycle_len);
             }
             seen.insert(window.clone(), i);
@@ -190,7 +190,7 @@ impl utils::Solution for Solution {
 
         let loops = (1000000000 - current) / cycle_len;
         let remainder = 1000000000 - current - (cycle_len * loops);
-        info!(loops, remainder, "loops?");
+        debug!(loops, remainder, "loops?");
 
         for _ in 0..remainder {
             Self::roll_cycle(&mut data);
