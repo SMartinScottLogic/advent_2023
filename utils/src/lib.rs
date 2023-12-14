@@ -1,7 +1,7 @@
 #![feature(step_trait)]
 pub mod graph;
-pub mod math;
 mod grid;
+pub mod math;
 mod matrix;
 mod point;
 mod runner;

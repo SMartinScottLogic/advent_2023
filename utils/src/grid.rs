@@ -1,4 +1,10 @@
-use std::{collections::HashMap, fmt::Display, ops::{Sub, Add, AddAssign, RangeInclusive}, iter::Step, hash::Hash};
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    hash::Hash,
+    iter::Step,
+    ops::{Add, AddAssign, RangeInclusive, Sub},
+};
 
 use crate::Point;
 
@@ -7,44 +13,88 @@ pub struct Range<T> {
     pub x: RangeInclusive<T>,
     pub y: RangeInclusive<T>,
 }
-impl <T> Range<T>
-where T: Default
+impl<T> Range<T>
+where
+    T: Default,
 {
     fn new() -> Self {
-        Self { x: T::default()..=T::default(), y: T::default()..=T::default() }
+        Self {
+            x: T::default()..=T::default(),
+            y: T::default()..=T::default(),
+        }
     }
 }
 
+#[deprecated(
+    since = "0.1.0",
+    note = "Incomplete please use `Matrix` instead, for competition code"
+)]
 #[derive(Debug, Clone)]
 pub struct Grid<T, V>
-where V: Default + Sized + Copy + Sub<Output = V> + Add<Output = V> + AddAssign + Eq + PartialEq + Hash,
+where
+    V: Default
+        + Sized
+        + Copy
+        + Sub<Output = V>
+        + Add<Output = V>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + Hash,
 {
     data: HashMap<Point<V>, T>,
     range: Range<V>,
 }
-impl <T, V> Grid<T, V>
+impl<T, V> Grid<T, V>
 where
     T: Default + Display + Clone,
-    V: Default + Sized + Copy + Sub<Output = V> + Add<Output = V> + AddAssign + Eq + PartialEq + Hash,
+    V: Default
+        + Sized
+        + Copy
+        + Sub<Output = V>
+        + Add<Output = V>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + Hash,
 {
     pub fn new() -> Self {
-        Self { data: HashMap::new(), range: Range::new() }
+        Self {
+            data: HashMap::new(),
+            range: Range::new(),
+        }
     }
 }
 impl<T, V> Default for Grid<T, V>
 where
-        T: Default + Display + Clone,
-        V: Default + Sized + Copy + Sub<Output = V> + Add<Output = V> + AddAssign + Eq + PartialEq + Hash,
-    {
-        fn default() -> Self {
-            Self::new()
-        }
+    T: Default + Display + Clone,
+    V: Default
+        + Sized
+        + Copy
+        + Sub<Output = V>
+        + Add<Output = V>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + Hash,
+{
+    fn default() -> Self {
+        Self::new()
     }
+}
 
-impl<T, V> Grid <T, V>
+impl<T, V> Grid<T, V>
 where
-        T: Default + Display + Clone,
-        V: Default + Sized + Copy + Sub<Output = V> + Add<Output = V> + AddAssign + Eq + PartialEq + Hash,
+    T: Default + Display + Clone,
+    V: Default
+        + Sized
+        + Copy
+        + Sub<Output = V>
+        + Add<Output = V>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + Hash,
 {
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
@@ -104,4 +154,3 @@ where
         }
     }
 }
-

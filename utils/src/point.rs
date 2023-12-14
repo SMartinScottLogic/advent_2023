@@ -1,26 +1,86 @@
-use std::{ops::{Add, AddAssign, Sub}, iter::Step};
+use std::{
+    iter::Step,
+    ops::{Add, AddAssign, Sub},
+};
 
-#[derive(Debug, Clone, Copy, PartialOrd, Ord)]
-#[derive(Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord, Eq, Hash, PartialEq)]
 pub struct Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     x: T,
     y: T,
 }
 
-impl <T> Point<T>
-where T: Default + Step + Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash
+impl<T> Point<T>
+where
+    T: Default
+        + Step
+        + Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
-    pub fn north(&self) -> Self { Self { x: self.x, y: T::backward(self.y, 1) }}
-    pub fn south(&self) -> Self {Self { x: self.x, y: T::forward(self.y, 1) }}
-    pub fn east(&self) -> Self {Self { x: T::forward(self.x, 1), y: self.y }}
-    pub fn west(&self) -> Self {Self { x: T::backward(self.x, 1), y: self.y }}
+    pub fn north(&self) -> Self {
+        Self {
+            x: self.x,
+            y: T::backward(self.y, 1),
+        }
+    }
+    pub fn south(&self) -> Self {
+        Self {
+            x: self.x,
+            y: T::forward(self.y, 1),
+        }
+    }
+    pub fn east(&self) -> Self {
+        Self {
+            x: T::forward(self.x, 1),
+            y: self.y,
+        }
+    }
+    pub fn west(&self) -> Self {
+        Self {
+            x: T::backward(self.x, 1),
+            y: self.y,
+        }
+    }
 
-    pub fn northeast(&self) -> Self { Self { x: T::forward(self.x, 1), y: T::backward(self.y, 1) }}
-    pub fn northwest(&self) -> Self { Self { x: T::backward(self.x, 1), y: T::backward(self.y, 1) }}
-    pub fn southeast(&self) -> Self { Self { x: T::forward(self.x, 1), y: T::forward(self.y, 1) }}
-    pub fn southwest(&self) -> Self { Self { x: T::backward(self.x, 1), y: T::forward(self.y, 1) }}
+    pub fn northeast(&self) -> Self {
+        Self {
+            x: T::forward(self.x, 1),
+            y: T::backward(self.y, 1),
+        }
+    }
+    pub fn northwest(&self) -> Self {
+        Self {
+            x: T::backward(self.x, 1),
+            y: T::backward(self.y, 1),
+        }
+    }
+    pub fn southeast(&self) -> Self {
+        Self {
+            x: T::forward(self.x, 1),
+            y: T::forward(self.y, 1),
+        }
+    }
+    pub fn southwest(&self) -> Self {
+        Self {
+            x: T::backward(self.x, 1),
+            y: T::forward(self.y, 1),
+        }
+    }
 
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
@@ -52,8 +112,16 @@ where T: Default + Step + Sized + Copy + Sub<Output = T> + Add<Output = T> + Add
     }
 }
 
-impl <T> Add<Self> for Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+impl<T> Add<Self> for Point<T>
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     type Output = Self;
 
@@ -64,8 +132,16 @@ where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + Par
         }
     }
 }
-impl <T> AddAssign<Self> for Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+impl<T> AddAssign<Self> for Point<T>
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
@@ -73,8 +149,16 @@ where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + Par
     }
 }
 
-impl <T> Add<&Self> for Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+impl<T> Add<&Self> for Point<T>
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     type Output = Self;
 
@@ -86,8 +170,16 @@ where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + Par
     }
 }
 
-impl <T> Sub<Self> for Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+impl<T> Sub<Self> for Point<T>
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     type Output = Self;
 
@@ -99,8 +191,16 @@ where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + Par
     }
 }
 
-impl <T> Sub<&Self> for Point<T>
-where T: Sized + Copy + Sub<Output = T> + Add<Output = T> + AddAssign + Eq + PartialEq + std::hash::Hash,
+impl<T> Sub<&Self> for Point<T>
+where
+    T: Sized
+        + Copy
+        + Sub<Output = T>
+        + Add<Output = T>
+        + AddAssign
+        + Eq
+        + PartialEq
+        + std::hash::Hash,
 {
     type Output = Self;
 

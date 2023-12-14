@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 
 #[derive(Debug, Default, Clone)]
-#[deprecated(since="0.5.0", note="please use `Grid` instead")]
+//TODO #[deprecated(since="0.5.0", note="please use `Grid` instead")]
 pub struct Matrix<T> {
     data: HashMap<(isize, isize), T>,
     max_x: isize,
