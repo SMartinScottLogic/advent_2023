@@ -166,7 +166,7 @@ impl utils::Solution for Solution {
 
         let mut seen = HashMap::new();
         let mut i = 0;
-        let (current ,cycle_len) = loop {
+        let (current, cycle_len) = loop {
             Self::roll_cycle(&mut data);
             i += 1;
             let load = Self::calculate_load_north(&data);
@@ -176,12 +176,12 @@ impl utils::Solution for Solution {
                 window.pop_front();
             }
             if window.len() == lookback {
-            if let Some(last_seen) = seen.get(&window) {
-                let cycle_len = i - last_seen;
-                debug!(i, last_seen, cycle_len, "dupe");
-                break (i, cycle_len);
-            }
-            seen.insert(window.clone(), i);
+                if let Some(last_seen) = seen.get(&window) {
+                    let cycle_len = i - last_seen;
+                    debug!(i, last_seen, cycle_len, "dupe");
+                    break (i, cycle_len);
+                }
+                seen.insert(window.clone(), i);
             }
         };
 
@@ -197,4 +197,3 @@ impl utils::Solution for Solution {
         Ok(total)
     }
 }
-
