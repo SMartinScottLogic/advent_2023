@@ -67,8 +67,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (id, line) in reader.lines().flatten().enumerate() {
-            // Implement for problem
+        for (id, line) in reader.lines().map_while(Result::ok).enumerate() {
             let (_, values) = line.split_once(':').unwrap();
             let int_values = values
                 .trim()

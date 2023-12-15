@@ -31,7 +31,6 @@ impl utils::Solution for Solution {
             }
             total += score;
         }
-        // Implement for problem
         Ok(total)
     }
 
@@ -59,7 +58,6 @@ impl utils::Solution for Solution {
         }
         debug!(count = debug(&count), "pass");
         let result = count.values().sum();
-        // Implement for problem
         Ok(result)
     }
 }
@@ -75,7 +73,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             let (_, data) = line.split_once(':').unwrap();
             let (lhs, rhs) = data.split_once('|').unwrap();
             let winning = lhs
@@ -91,7 +89,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                 .map(|v| v.trim().parse().unwrap())
                 .collect();
             solution.add_cards(winning, have);
-            // Implement for problem
         }
         Ok(solution)
     }

@@ -76,7 +76,6 @@ impl Solution {
             debug!(to = debug(to), via = debug(via), cost, "cost");
             result_matrix.set(to.0, to.1, *cost);
         }
-        //result_matrix.display_with_mapping(|v| format!(" {:03}", v));
         results
     }
 }
@@ -86,8 +85,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (y, line) in reader.lines().flatten().enumerate() {
-            // Implement for problem
+        for (y, line) in reader.lines().map_while(Result::ok).enumerate() {
             for (x, c) in line.chars().enumerate() {
                 solution.set_grid(x, y, c);
             }
@@ -101,14 +99,11 @@ impl utils::Solution for Solution {
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
         let results = Self::calculate_loop_distances(&self.grid);
-        //result_matrix.display_with_mapping(|v| if v == 0 {".".to_string()} else {format!("{v}")});
         let result = results.iter().max_by_key(|(_, (_, cost))| cost).unwrap();
-        // Implement for problem
         Ok(result.1 .1 as ResultType)
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        //self.grid.display();
         let mut expanded_grid = Matrix::new();
         for ((x, y), c) in self.grid.sparse_iter() {
             expanded_grid.set(x * 2, y * 2, *c);
@@ -140,7 +135,6 @@ impl utils::Solution for Solution {
         for ((x, y), _) in results {
             loop_nodes.set(x, y, 1);
         }
-        //loop_nodes.display();
         let (maxx, maxy) = loop_nodes.dimensions();
         let mut probes = vec![(maxx, maxy + 1)];
         while let Some((probex, probey)) = probes.pop() {
@@ -167,7 +161,6 @@ impl utils::Solution for Solution {
                 }
             }
         }
-        //loop_nodes.display();
         let mut reachable = Matrix::new();
         let mut count = 0;
         for y in -1..=maxy + 1 {
@@ -182,8 +175,6 @@ impl utils::Solution for Solution {
                 }
             }
         }
-        //reachable.display();
-        // Implement for problem
         Ok(count)
     }
 }

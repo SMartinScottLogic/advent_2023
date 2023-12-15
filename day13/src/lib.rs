@@ -40,7 +40,6 @@ impl Solution {
     fn find_vertical_mirror(grid: &Matrix<char>, smudges: usize) -> Vec<isize> {
         let (maxx, _) = grid.dimensions();
         let mut mirrors = Vec::new();
-        // Vertical mirror
         for x in 0..maxx {
             if Self::test_vertical_mirror(grid, x, smudges) {
                 debug!(x, "vertical");
@@ -70,7 +69,6 @@ impl Solution {
 
     fn find_horizontal_mirror(grid: &Matrix<char>, smudges: usize) -> Vec<isize> {
         let (_, maxy) = grid.dimensions();
-        // Vertical mirror
         let mut mirrors = Vec::new();
         for y in 0..maxy {
             if Self::test_horizontal_mirror(grid, y, smudges) {
@@ -90,7 +88,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
         let mut grid = Matrix::new();
         let mut y = 0;
         for line in reader.lines().map_while(Result::ok) {
-            // Implement for problem
             if line.trim().is_empty() {
                 if !grid.is_empty() {
                     solution.add_grid(grid);
@@ -137,7 +134,6 @@ impl utils::Solution for Solution {
             .map(|s| *s as ResultType + 1)
             .sum::<ResultType>();
         let score = h_score + v_score;
-        // Implement for problem
         Ok(score)
     }
 
@@ -164,7 +160,6 @@ impl utils::Solution for Solution {
             .map(|s| *s as ResultType + 1)
             .sum::<ResultType>();
         let score = h_score + v_score;
-        // Implement for problem
         Ok(score)
     }
 }

@@ -59,7 +59,6 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
         fn is_symbol(c: char) -> bool {
             !(c.is_numeric() || c == '.')
         }
@@ -84,8 +83,6 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
-
         let mut gears = HashMap::new();
         for (sx, ex, y, v) in self.found_numbers.iter() {
             for y in y - 1..=y + 1 {
@@ -126,8 +123,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (y, line) in reader.lines().flatten().enumerate() {
-            // Implement for problem
+        for (y, line) in reader.lines().map_while(Result::ok).enumerate() {
             for (x, c) in line.chars().enumerate() {
                 solution.set(x, y, c);
             }

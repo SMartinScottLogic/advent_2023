@@ -77,7 +77,6 @@ impl Solution {
                         }
                         '.' => {
                             let g = groups.get(group_id).unwrap_or(&0);
-                            //info!(g, group_id, in_group_pos, "t");
                             if *g == in_group_pos {
                                 *counts.entry((pos + 1, group_id + 1, 0)).or_default() += mult;
                             }
@@ -92,7 +91,6 @@ impl Solution {
                         }
                         '?' => {
                             let g = groups.get(group_id).unwrap_or(&0);
-                            //debug!(g, group_id, in_group_pos, pos, counts = debug(&counts), "?");
                             // Can be a '.'
                             if in_group_pos == 0 {
                                 *counts.entry((pos + 1, group_id, 0)).or_default() += mult;
@@ -128,7 +126,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (_, line) in reader.lines().flatten().enumerate() {
+        for line in reader.lines().map_while(Result::ok) {
             let (lhs, rhs) = line.split_once(' ').unwrap();
             let groups = rhs.split(',').map(|v| v.parse().unwrap()).collect();
             solution.add_springs(lhs, groups);
@@ -146,7 +144,6 @@ impl utils::Solution for Solution {
             .iter()
             .map(|(data, groups)| Self::possible_arrangements(data, groups))
             .sum();
-        // Implement for problem
         Ok(result)
     }
 
@@ -171,7 +168,6 @@ impl utils::Solution for Solution {
             .iter()
             .map(|(data, groups)| Self::possible_arrangements_step2(data, groups))
             .sum();
-        // Implement for problem
         Ok(result)
     }
 }

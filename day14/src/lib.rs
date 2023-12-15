@@ -141,7 +141,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
             for (x, c) in line.chars().enumerate() {
                 solution.add_cell(x, y, c);
             }
-            // Implement for problem
         }
         Ok(solution)
     }
@@ -151,7 +150,6 @@ impl utils::Solution for Solution {
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
         let mut data = self.data.clone();
         Self::roll_north(&mut data);
 
@@ -161,7 +159,6 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
         let mut data = self.data.clone();
 
         let lookback = 1000;
@@ -169,7 +166,7 @@ impl utils::Solution for Solution {
 
         let mut seen = HashMap::new();
         let mut i = 0;
-        let (current ,cycle_len) = loop {
+        let (current, cycle_len) = loop {
             Self::roll_cycle(&mut data);
             i += 1;
             let load = Self::calculate_load_north(&data);
@@ -179,12 +176,12 @@ impl utils::Solution for Solution {
                 window.pop_front();
             }
             if window.len() == lookback {
-            if let Some(last_seen) = seen.get(&window) {
-                let cycle_len = i - last_seen;
-                debug!(i, last_seen, cycle_len, "dupe");
-                break (i, cycle_len);
-            }
-            seen.insert(window.clone(), i);
+                if let Some(last_seen) = seen.get(&window) {
+                    let cycle_len = i - last_seen;
+                    debug!(i, last_seen, cycle_len, "dupe");
+                    break (i, cycle_len);
+                }
+                seen.insert(window.clone(), i);
             }
         };
 
@@ -200,4 +197,3 @@ impl utils::Solution for Solution {
         Ok(total)
     }
 }
-

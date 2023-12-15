@@ -46,7 +46,6 @@ impl utils::Solution for Solution {
             .enumerate()
             .map(|(i, h)| (i + 1) as u64 * h.bid)
             .sum();
-        // Implement for problem
         Ok(result)
     }
 
@@ -89,7 +88,6 @@ impl utils::Solution for Solution {
             .enumerate()
             .map(|(i, h)| (i + 1) as u64 * h.1.bid)
             .sum();
-        // Implement for problem
         Ok(result)
     }
 }
@@ -177,8 +175,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for line in reader.lines().flatten() {
-            // Implement for problem
+        for line in reader.lines().map_while(Result::ok) {
             let hand: Hand = line.into();
             solution.add_hand(hand);
         }
