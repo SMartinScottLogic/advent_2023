@@ -126,7 +126,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (_, line) in reader.lines().flatten().enumerate() {
+        for line in reader.lines().map_while(Result::ok) {
             let (lhs, rhs) = line.split_once(' ').unwrap();
             let groups = rhs.split(',').map(|v| v.parse().unwrap()).collect();
             solution.add_springs(lhs, groups);

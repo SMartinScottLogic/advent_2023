@@ -119,7 +119,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
         let mut solution = Self::default();
         let mut stage = 0;
         let mut has_header = false;
-        for line in reader.lines().flatten() {
+        for line in reader.lines().map_while(Result::ok) {
             if line.trim().is_empty() {
                 stage += 1;
                 has_header = false;

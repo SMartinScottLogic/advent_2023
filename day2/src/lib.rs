@@ -84,7 +84,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (id, line) in reader.lines().flatten().enumerate() {
+        for (id, line) in reader.lines().map_while(Result::ok).enumerate() {
             if let Some((_game, sets)) = line.split_once(':') {
                 let sets = sets.split(';').map(Set::from).collect();
                 solution.add_game(id + 1, sets);

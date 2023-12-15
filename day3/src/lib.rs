@@ -123,7 +123,7 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
-        for (y, line) in reader.lines().flatten().enumerate() {
+        for (y, line) in reader.lines().map_while(Result::ok).enumerate() {
             for (x, c) in line.chars().enumerate() {
                 solution.set(x, y, c);
             }
