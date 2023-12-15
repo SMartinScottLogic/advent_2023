@@ -30,7 +30,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
         let mut solution = Self::default();
         for (id, line) in reader.lines().flatten().enumerate() {
             let line = line.trim();
-            // Implement for problem
             if id == 0 {
                 solution.set_instructions(line);
             } else if !line.is_empty() {
@@ -107,7 +106,6 @@ impl utils::Solution for Solution {
             steps += 1;
             debug!(node, steps, "step");
         }
-        // Implement for problem
         Ok(steps as u64)
     }
 

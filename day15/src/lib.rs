@@ -3,17 +3,20 @@ use std::io::{BufRead, BufReader};
 pub type ResultType = u64;
 
 #[derive(Debug, Default)]
-pub struct Solution {}
-impl Solution {}
+pub struct Solution {
 
-#[allow(unused_variables, unused_mut)]
+}
+impl Solution {
+
+}
+
 impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
     type Error = std::io::Error;
 
     fn try_from(reader: BufReader<T>) -> Result<Self, Self::Error> {
         let mut solution = Self::default();
         for (id, line) in reader.lines().map_while(Result::ok).enumerate() {
-            // Implement for problem
+            
         }
         Ok(solution)
     }

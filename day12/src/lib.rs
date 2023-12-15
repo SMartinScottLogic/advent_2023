@@ -77,7 +77,6 @@ impl Solution {
                         }
                         '.' => {
                             let g = groups.get(group_id).unwrap_or(&0);
-                            //info!(g, group_id, in_group_pos, "t");
                             if *g == in_group_pos {
                                 *counts.entry((pos + 1, group_id + 1, 0)).or_default() += mult;
                             }
@@ -92,7 +91,6 @@ impl Solution {
                         }
                         '?' => {
                             let g = groups.get(group_id).unwrap_or(&0);
-                            //debug!(g, group_id, in_group_pos, pos, counts = debug(&counts), "?");
                             // Can be a '.'
                             if in_group_pos == 0 {
                                 *counts.entry((pos + 1, group_id, 0)).or_default() += mult;
@@ -146,7 +144,6 @@ impl utils::Solution for Solution {
             .iter()
             .map(|(data, groups)| Self::possible_arrangements(data, groups))
             .sum();
-        // Implement for problem
         Ok(result)
     }
 
@@ -171,7 +168,6 @@ impl utils::Solution for Solution {
             .iter()
             .map(|(data, groups)| Self::possible_arrangements_step2(data, groups))
             .sum();
-        // Implement for problem
         Ok(result)
     }
 }

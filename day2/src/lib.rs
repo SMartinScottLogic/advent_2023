@@ -44,7 +44,6 @@ impl utils::Solution for Solution {
             })
             .map(|(id, _)| *id as ResultType)
             .sum();
-        // Implement for problem
         Ok(r)
     }
 

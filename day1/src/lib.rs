@@ -50,7 +50,6 @@ impl utils::Solution for Solution {
                 .unwrap_or_default();
             total += (first * 10 + last) as u64;
         }
-        // Implement for problem
         Ok(total)
     }
 
@@ -89,7 +88,6 @@ impl utils::Solution for Solution {
             info!(line, newline, first, last, "part");
             total += (first * 10 + last) as u64;
         }
-        // Implement for problem
         Ok(total)
     }
 }

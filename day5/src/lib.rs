@@ -40,7 +40,6 @@ impl utils::Solution for Solution {
             .map(|seed| self.get_location(*seed))
             .min()
             .unwrap();
-        // Implement for problem
         Ok(result)
     }
 
@@ -61,7 +60,6 @@ impl utils::Solution for Solution {
 
         let result = v.iter().map(|v| v.0).min().unwrap();
 
-        // Implement for problem
         Ok(result)
     }
 }
@@ -127,7 +125,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                 has_header = false;
                 continue;
             }
-            // Implement for problem
             match stage {
                 // seeds
                 0 => {
@@ -291,17 +288,17 @@ mod test {
                 source_start: 0,
                 dest_start: 10,
                 range_length: 50,
-            }, // a
+            },
             RangeMap {
                 source_start: 75,
                 dest_start: 20,
                 range_length: 30,
-            }, // b
+            },
             RangeMap {
                 source_start: 125,
                 dest_start: 90,
                 range_length: 50,
-            }, // c
+            },
         ];
         let result = Solution::transform(input, next.as_ref());
         assert_eq!(vec![(45, 5), (105, 20), (90, 25)], result);

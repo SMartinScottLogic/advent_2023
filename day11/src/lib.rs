@@ -25,7 +25,6 @@ impl Solution {
         let mut expand_columns = HashSet::new();
         let mut expand_rows = HashSet::new();
 
-        //self.space.display();
         debug!(maxx, maxy, "dimensions");
         for y in 0..=maxy {
             let mut expand_row = true;
@@ -125,7 +124,6 @@ impl utils::Solution for Solution {
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
         let space = self.expand();
-        //space.display();
         let galaxies = space
             .sparse_iter()
             .filter(|(_, c)| *c == &'#')
@@ -143,7 +141,6 @@ impl utils::Solution for Solution {
                 }
             }
         }
-        // Implement for problem
         Ok(total)
     }
 
@@ -182,7 +179,6 @@ impl utils::Solution for Solution {
                 }
             }
         }
-        // Implement for problem
         Ok(total)
     }
 }

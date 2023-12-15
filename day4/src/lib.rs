@@ -31,7 +31,6 @@ impl utils::Solution for Solution {
             }
             total += score;
         }
-        // Implement for problem
         Ok(total)
     }
 
@@ -59,7 +58,6 @@ impl utils::Solution for Solution {
         }
         debug!(count = debug(&count), "pass");
         let result = count.values().sum();
-        // Implement for problem
         Ok(result)
     }
 }
@@ -91,7 +89,6 @@ impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
                 .map(|v| v.trim().parse().unwrap())
                 .collect();
             solution.add_cards(winning, have);
-            // Implement for problem
         }
         Ok(solution)
     }
