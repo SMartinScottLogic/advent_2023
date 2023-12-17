@@ -36,67 +36,156 @@ enum Direction {
     East,
     West,
 }
+type State = (isize, isize, Option<(Direction, usize)>);
+
+impl Solution {
+    fn success(&self, (x, y, _): &State) -> bool {
+        let (maxx, maxy) = self.island.dimensions();
+        *x == maxx && *y == maxy
+    }
+    fn heuristic(&self, (x, y, _): &State) -> isize {
+        let (maxx, maxy) = self.island.dimensions();
+        (maxx - x) + (maxy - y)
+    }
+    fn successors_part1(&self, (x, y, s): &State) -> Vec<(State, isize)> {
+        let x = *x;
+        let y = *y;
+
+        let c = match s {
+            None => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x + 1, y, Some((Direction::East, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::North, c)) if *c < 3 => vec![
+                (x, y - 1, Some((Direction::North, c + 1))),
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::North, _)) => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::East, c)) if *c < 3 => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x + 1, y, Some((Direction::East, c + 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+            Some((Direction::East, _)) => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+            Some((Direction::South, c)) if *c < 3 => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x, y + 1, Some((Direction::South, c + 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::South, _)) => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::West, c)) if *c < 3 => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+                (x - 1, y, Some((Direction::West, c + 1))),
+            ],
+            Some((Direction::West, _)) => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+        };
+        c.into_iter()
+            .filter_map(|(x, y, s)| self.island.get(x, y).map(|c| ((x, y, s), *c)))
+            .collect::<Vec<_>>()
+    }
+
+    fn successors_part2(&self, (x, y, s): &State) -> Vec<(State, isize)> {
+        let (maxx, maxy) = self.island.dimensions();
+        let x = *x;
+        let y = *y;
+
+        let c = match s {
+            None => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x + 1, y, Some((Direction::East, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::North, c)) if *c < 4 => {
+                vec![(x, y - 1, Some((Direction::North, c + 1)))]
+            }
+            Some((Direction::North, c)) if *c < 10 => vec![
+                (x, y - 1, Some((Direction::North, c + 1))),
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::North, _)) => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::East, c)) if *c < 4 => {
+                vec![(x + 1, y, Some((Direction::East, c + 1)))]
+            }
+            Some((Direction::East, c)) if *c < 10 => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x + 1, y, Some((Direction::East, c + 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+            Some((Direction::East, _)) => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+            Some((Direction::South, c)) if *c < 4 => {
+                vec![(x, y + 1, Some((Direction::South, c + 1)))]
+            }
+            Some((Direction::South, c)) if *c < 10 => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x, y + 1, Some((Direction::South, c + 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::South, _)) => vec![
+                (x + 1, y, Some((Direction::East, 1))),
+                (x - 1, y, Some((Direction::West, 1))),
+            ],
+            Some((Direction::West, c)) if *c < 4 => {
+                vec![(x - 1, y, Some((Direction::West, c + 1)))]
+            }
+            Some((Direction::West, c)) if *c < 10 => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+                (x - 1, y, Some((Direction::West, c + 1))),
+            ],
+            Some((Direction::West, _)) => vec![
+                (x, y - 1, Some((Direction::North, 1))),
+                (x, y + 1, Some((Direction::South, 1))),
+            ],
+        };
+        c.into_iter()
+            .filter_map(|(x, y, s)| self.island.get(x, y).map(|c| ((x, y, s), *c)))
+            .filter(|((x, y, s), _)| {
+                if *x == maxx && *y == maxy {
+                    s.unwrap().1 >= 4
+                } else {
+                    true
+                }
+            })
+            .collect::<Vec<_>>()
+    }
+}
+
 impl utils::Solution for Solution {
     type Result = anyhow::Result<ResultType>;
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        let (maxx, maxy) = self.island.dimensions();
-        let success =
-            |&(x, y, _): &(isize, isize, Option<(Direction, usize)>)| x == maxx && y == maxy;
-        let successors = |&(x, y, s): &(isize, isize, Option<(Direction, usize)>)| {
-            let c = match s {
-                None => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::North, c)) if c < 3 => vec![
-                    (x, y - 1, Some((Direction::North, c + 1))),
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::North, _)) => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::East, c)) if c < 3 => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x + 1, y, Some((Direction::East, c + 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-                Some((Direction::East, _)) => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-                Some((Direction::South, c)) if c < 3 => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x, y + 1, Some((Direction::South, c + 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::South, _)) => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::West, c)) if c < 3 => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                    (x - 1, y, Some((Direction::West, c + 1))),
-                ],
-                Some((Direction::West, _)) => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-            };
-            c.into_iter()
-                .filter_map(|(x, y, s)| self.island.get(x, y).map(|c| ((x, y, s), *c)))
-                .collect::<Vec<_>>()
-        };
-        let heuristic =
-            |&(x, y, _): &(isize, isize, Option<(Direction, usize)>)| (maxx - x) + (maxy - y);
-        let r = pathfinding::directed::astar::astar(&(0, 0, None), successors, heuristic, success)
-            .unwrap();
+        let r = pathfinding::directed::astar::astar(
+            &(0, 0, None),
+            |s| self.successors_part1(s),
+            |s| self.heuristic(s),
+            |s| self.success(s),
+        )
+        .unwrap();
         if event_enabled!(Level::DEBUG) {
             debug!(r = debug(&r), "result");
             let p = r.0.iter().fold(Matrix::new(), |mut path, v| {
@@ -117,81 +206,13 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        let (maxx, maxy) = self.island.dimensions();
-        let success =
-            |&(x, y, _): &(isize, isize, Option<(Direction, usize)>)| x == maxx && y == maxy;
-        let successors = |&(x, y, s): &(isize, isize, Option<(Direction, usize)>)| {
-            let c = match s {
-                None => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::North, c)) if c < 4 => {
-                    vec![(x, y - 1, Some((Direction::North, c + 1)))]
-                }
-                Some((Direction::North, c)) if c < 10 => vec![
-                    (x, y - 1, Some((Direction::North, c + 1))),
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::North, _)) => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::East, c)) if c < 4 => {
-                    vec![(x + 1, y, Some((Direction::East, c + 1)))]
-                }
-                Some((Direction::East, c)) if c < 10 => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x + 1, y, Some((Direction::East, c + 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-                Some((Direction::East, _)) => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-                Some((Direction::South, c)) if c < 4 => {
-                    vec![(x, y + 1, Some((Direction::South, c + 1)))]
-                }
-                Some((Direction::South, c)) if c < 10 => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x, y + 1, Some((Direction::South, c + 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::South, _)) => vec![
-                    (x + 1, y, Some((Direction::East, 1))),
-                    (x - 1, y, Some((Direction::West, 1))),
-                ],
-                Some((Direction::West, c)) if c < 4 => {
-                    vec![(x - 1, y, Some((Direction::West, c + 1)))]
-                }
-                Some((Direction::West, c)) if c < 10 => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                    (x - 1, y, Some((Direction::West, c + 1))),
-                ],
-                Some((Direction::West, _)) => vec![
-                    (x, y - 1, Some((Direction::North, 1))),
-                    (x, y + 1, Some((Direction::South, 1))),
-                ],
-            };
-            c.into_iter()
-                .filter_map(|(x, y, s)| self.island.get(x, y).map(|c| ((x, y, s), *c)))
-                .filter(|((x, y, s), _)| {
-                    if *x == maxx && *y == maxy {
-                        s.unwrap().1 >= 4
-                    } else {
-                        true
-                    }
-                })
-                .collect::<Vec<_>>()
-        };
-        let heuristic =
-            |&(x, y, _): &(isize, isize, Option<(Direction, usize)>)| (maxx - x) + (maxy - y);
-        let r = pathfinding::directed::astar::astar(&(0, 0, None), successors, heuristic, success)
-            .unwrap();
+        let r = pathfinding::directed::astar::astar(
+            &(0, 0, None),
+            |s| self.successors_part2(s),
+            |s| self.heuristic(s),
+            |s| self.success(s),
+        )
+        .unwrap();
         if event_enabled!(Level::DEBUG) {
             debug!(r = debug(&r), "result");
             let p = r.0.iter().fold(Matrix::new(), |mut path, v| {
