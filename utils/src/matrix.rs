@@ -66,7 +66,7 @@ where
     {
         for y in self.min_y..=self.max_y {
             let mut line = String::new();
-            line.push_str(&format!("{} ", y));
+            line.push_str(&format!("{:04} ", y));
             for x in self.min_x..=self.max_x {
                 let v = match self.get(x, y) {
                     Some(v) => (*v).to_owned(),
