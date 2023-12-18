@@ -1,8 +1,9 @@
 use std::io::{BufRead, BufReader};
+use itertools::Itertools;
 use tracing::{debug, event_enabled, info, Level};
 use utils::Matrix;
 
-pub type ResultType = u64;
+pub type ResultType = i64;
 
 #[derive(Debug, Default)]
 pub struct Solution {
@@ -119,9 +120,6 @@ impl utils::Solution for Solution {
             let mut on_wall = false;
             for x in min_x..=max_x {
                 let c = *lagoon.get(x, y).unwrap_or(&4);
-                if y == 8 {
-                    info!(inside, on_wall, x, y, c, "before");
-                }
                 match lagoon.get(x, y) {
                     Some(3) => {inside = false; on_wall = false},
                     Some(2) => {inside = true; on_wall = false},
@@ -137,9 +135,6 @@ impl utils::Solution for Solution {
                     _ if inside => lagoon.set(x, y, 2),
                     _ if !inside => {}
                     _ => panic!()
-                }
-                if y == 8 {
-                    info!(inside, on_wall, x, y, c, "after");
                 }
             }
         }
@@ -181,8 +176,41 @@ impl utils::Solution for Solution {
     }
 
     fn answer_part2(&self, _is_full: bool) -> Self::Result {
-        // Implement for problem
-        Ok(0)
+        let mut pos: (ResultType, ResultType) = (0, 0);
+        let mut perimeter = 0;
+        let mut area = 0;
+
+        // Pick's theorem
+
+        for (direction, length) in self.trenches.iter().map(|trench| {
+            let distance = trench.color.chars().skip(1).take(5).collect::<String>();
+            let distance = ResultType::from_str_radix(&distance, 16).unwrap();
+            let direction = match trench.color.chars().last().unwrap() {
+                '0' => Direction::Right,
+                '1' => Direction::Down,
+                '2' => Direction::Left,
+                '3' => Direction::Up,
+                _ => panic!()
+            };
+            (direction, distance)
+        }) {
+            let (dx, dy) = match direction {
+                Direction::Up => (0, -1),
+                Direction::Down => (0, 1),
+                Direction::Left => (-1, 0),
+                Direction::Right => (1, 0),
+            };
+            pos.0 += dx * length;
+            pos.1 += dy * length;
+            perimeter += length;
+            area += pos.0 * (dy * length);
+        }
+
+        info!(perimeter, area, "r");
+
+        let r = area + perimeter / 2 + 1;
+
+        Ok(r as ResultType)
     }
 }
 
