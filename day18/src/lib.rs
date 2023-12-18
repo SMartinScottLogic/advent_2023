@@ -17,8 +17,7 @@ impl Solution {
         let mut perimeter = 0;
         let mut area = 0;
 
-        // Pick's theorem
-
+        // TODO: Why does this work?
         for (direction, length) in directions {
             let (dx, dy) = match direction {
                 Direction::Up => (0, -1),
