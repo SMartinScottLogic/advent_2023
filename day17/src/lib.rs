@@ -42,7 +42,7 @@ impl Direction {
             Self::North => Self::South,
             Self::South => Self::North,
             Self::East => Self::West,
-            Self::West => Self::East
+            Self::West => Self::East,
         }
     }
 }
@@ -241,4 +241,3 @@ impl utils::Solution for Solution {
         Ok(r.1 as ResultType)
     }
 }
-
