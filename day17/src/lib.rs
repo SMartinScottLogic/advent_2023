@@ -36,6 +36,16 @@ enum Direction {
     East,
     West,
 }
+impl Direction {
+    fn opposite(&self) -> Self {
+        match self {
+            Self::North => Self::South,
+            Self::South => Self::North,
+            Self::East => Self::West,
+            Self::West => Self::East
+        }
+    }
+}
 type State = (isize, isize, Option<(Direction, usize)>);
 
 impl Solution {

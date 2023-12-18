@@ -52,9 +52,19 @@ where
         self.max_x
     }
 
+    pub fn min_x(&self) -> isize {
+        // TODO: Expand to include minima
+        self.min_x
+    }
+
     pub fn max_y(&self) -> isize {
         // TODO: Expand to include minima
         self.max_y
+    }
+
+    pub fn min_y(&self) -> isize {
+        // TODO: Expand to include minima
+        self.min_y
     }
 
     pub fn display(&self) {
