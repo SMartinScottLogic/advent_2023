@@ -87,6 +87,29 @@ impl Solution {
         }
         (num_high, num_low, encountered_ends)
     }
+
+    fn setup_memory(&self) -> HashMap<String, HashMap<String, i32>> {
+        // Setup memory for conjunctions
+        let mut memory = HashMap::new();
+        for (s, _, _) in self
+            .modules
+            .iter()
+            .filter(|(_, m, _)| m == &Mode::Conjunction)
+        {
+            memory.insert((*s).clone(), HashMap::new());
+        }
+        for (src, _, targets) in &self.modules {
+            for target in targets {
+                match memory.get_mut(target) {
+                    None => {}
+                    Some(v) => {
+                        v.insert(src.clone(), -1);
+                    }
+                }
+            }
+        }
+        memory
+    }
 }
 
 impl<T: std::io::Read> TryFrom<BufReader<T>> for Solution {
@@ -107,37 +130,18 @@ impl utils::Solution for Solution {
     fn analyse(&mut self, _is_full: bool) {}
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
-        // Setup memory for conjunctions
-        let mut memory = HashMap::new();
-        for (s, _, _) in self
-            .modules
-            .iter()
-            .filter(|(_, m, _)| m == &Mode::Conjunction)
-        {
-            memory.insert((*s).clone(), HashMap::new());
-        }
-        for (src, _, targets) in &self.modules {
-            for target in targets {
-                match memory.get_mut(target) {
-                    None => {}
-                    Some(v) => {
-                        v.insert(src.clone(), -1);
-                    }
-                }
-            }
-        }
+        let mut memory = self.setup_memory();
 
         let mut num_low = 0;
         let mut num_high = 0;
         let mut state = HashMap::new();
         for i in 0..1000 {
-            info!(i, "pass");
+            debug!(i, "pass");
             let (s_high, s_low, _) = self.perform_step(&HashSet::new(), &mut state, &mut memory);
             num_high += s_high;
             num_low += s_low;
         }
-        info!(num_high, num_low, "done?");
-        // Implement for problem
+        debug!(num_high, num_low, "done?");
         Ok(num_high * num_low)
     }
 
@@ -145,31 +149,13 @@ impl utils::Solution for Solution {
         if !is_full {
             return Ok(0);
         }
-        // Setup memory for conjunctions
-        let mut memory = HashMap::new();
-        for (s, _, _) in self
-            .modules
-            .iter()
-            .filter(|(_, m, _)| m == &Mode::Conjunction)
-        {
-            memory.insert((*s).clone(), HashMap::new());
-        }
-        for (src, _, targets) in &self.modules {
-            for target in targets {
-                match memory.get_mut(target) {
-                    None => {}
-                    Some(v) => {
-                        v.insert(src.clone(), -1);
-                    }
-                }
-            }
-        }
+
+        let mut memory = self.setup_memory();
         // broadcaster has 4x outputs, rx is conjunction of 1 (zh), which has 4x inputs -> separable graphs?
         let ends = memory
             .get("zh")
             .unwrap()
-            .iter()
-            .map(|(k, v)| k)
+            .keys()
             .cloned()
             .collect::<HashSet<_>>();
 
@@ -189,7 +175,7 @@ impl utils::Solution for Solution {
             debug!(state = debug(&state), i, ends = debug(&ends), "s");
         }
         let r = lowest_common_multiple_many(&first_seen.values().cloned().collect::<Vec<_>>());
-        info!(
+        debug!(
             first_seen = debug(first_seen),
             ends = debug(ends),
             r,
