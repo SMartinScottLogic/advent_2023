@@ -206,7 +206,7 @@ impl utils::Solution for Solution {
                 }
             }
         }
-        debug!(accept = debug(&accept), "done?");
+        debug!(accept = debug(&accept), count = accept.len(), "done?");
         let r = accept
             .into_iter()
             .map(|(x_range, m_range, a_range, s_range)| {
