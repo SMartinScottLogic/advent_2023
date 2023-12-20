@@ -2,7 +2,7 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     io::{BufRead, BufReader},
 };
-use tracing::{debug, info};
+use tracing::debug;
 use utils::math::lowest_common_multiple_many;
 
 pub type ResultType = u64;
