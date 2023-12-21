@@ -25,12 +25,8 @@ where
     }
 }
 
-#[deprecated(
-    since = "0.1.0",
-    note = "Incomplete please use `Matrix` instead, for competition code"
-)]
 #[derive(Debug, Clone)]
-pub struct Grid<T, V>
+struct Grid<T, V>
 where
     V: Default
         + Sized
