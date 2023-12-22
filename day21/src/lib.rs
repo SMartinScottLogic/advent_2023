@@ -37,11 +37,7 @@ impl utils::Solution for Solution {
 
     fn answer_part1(&self, _is_full: bool) -> Self::Result {
         // Find start position
-        let ((x, y), _) = self
-            .plots
-            .sparse_iter()
-            .find(|(_, c)| *c == &'S')
-            .unwrap();
+        let ((x, y), _) = self.plots.sparse_iter().find(|(_, c)| *c == &'S').unwrap();
 
         let mut positions = HashSet::new();
         positions.insert((*x, *y));
@@ -82,11 +78,7 @@ impl utils::Solution for Solution {
         }
         let (max_x, max_y) = self.plots.dimensions();
         debug!(max_x, max_y, "dimensions");
-        let ((sx, sy), _) = self
-            .plots
-            .sparse_iter()
-            .find(|(_, c)| *c == &'S')
-            .unwrap();
+        let ((sx, sy), _) = self.plots.sparse_iter().find(|(_, c)| *c == &'S').unwrap();
 
         let mut positions = HashSet::new();
         positions.insert((*sx, *sy));
