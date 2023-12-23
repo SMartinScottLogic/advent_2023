@@ -2,7 +2,7 @@ use std::{
     collections::{HashMap, HashSet},
     io::{BufRead, BufReader},
 };
-use tracing::{debug, info};
+use tracing::debug;
 use utils::Matrix;
 
 pub type ResultType = u64;
@@ -124,7 +124,7 @@ impl Solution {
         while let Some(((x, y), d, visited)) = remaining.pop() {
             if x == ex && y == ey {
                 if max < d {
-                    info!(max, d, "end");
+                    debug!(max, d, "end");
                     max = d;
                 }
                 continue;
@@ -133,9 +133,9 @@ impl Solution {
             let neighbours = adjacency.get(&(x, y)).unwrap();
             for (neighbour, len) in neighbours {
                 if !visited.contains(&neighbour) {
-                        let mut n_visited = visited.clone();
-                        n_visited.insert(neighbour);
-                        remaining.push((*neighbour, d + len, n_visited));
+                    let mut n_visited = visited.clone();
+                    n_visited.insert(neighbour);
+                    remaining.push((*neighbour, d + len, n_visited));
                 }
             }
         }
@@ -186,29 +186,9 @@ impl utils::Solution for Solution {
 
         let r = self.longest_path_part2(start, 0, end, max_y);
         debug!(r, "done?");
-        let r = self.longest_path(start, 0, end, max_y, true);
-        debug!(r, "done?");
         // Implement for problem
         // TOO Low: 6282
         // Did not end, but answer = 6574
         Ok(r)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use std::io::BufReader;
-
-    use tracing_test::traced_test;
-    use utils::Solution;
-
-    #[test]
-    #[traced_test]
-    fn read() {
-        let input = "replace for problem";
-        let r = BufReader::new(input.as_bytes());
-        let s = crate::Solution::try_from(r).unwrap();
-        assert_eq!(0 as ResultType, s.answer_part1(false).unwrap());
     }
 }
