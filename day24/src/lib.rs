@@ -1,5 +1,6 @@
 use std::io::{BufRead, BufReader};
 use tracing::{debug, event_enabled, info, Level};
+use z3::{Solver, Context, Config, ast::Ast};
 
 pub type ResultType = f64;
 
@@ -147,7 +148,51 @@ impl utils::Solution for Solution {
             tracks.push(((hailstone.px, hailstone.py), (endx, endy), t));
         }
         // Implement for problem
-        Ok(0.0)
+        let ctx = Context::new(&Config::default());
+        let solver = Solver::new(&ctx);
+        let zero = z3::ast::Int::from_i64(&ctx, 0);
+
+        let rock_x = z3::ast::Int::new_const(&ctx, "rock_x");
+        let rock_y = z3::ast::Int::new_const(&ctx, "rock_y");
+        let rock_z = z3::ast::Int::new_const(&ctx, "rock_z");
+        let rock_vx = z3::ast::Int::new_const(&ctx, "rock_vx");
+        let rock_vy = z3::ast::Int::new_const(&ctx, "rock_vy");
+        let rock_vz = z3::ast::Int::new_const(&ctx, "rock_vz");
+
+        for (i, hailstone) in self.hailstones.iter().enumerate() {
+            if i > 4 {continue;}
+            let t_name = format!("t{i}");
+            let t = z3::ast::Int::new_const(&ctx, t_name);
+            solver.assert(&t.ge(&zero));
+            let x = z3::ast::Int::from_i64(&ctx, hailstone.px as i64);
+            let vx = z3::ast::Int::from_i64(&ctx, hailstone.vx as i64);
+            let px = &x + &vx * &t;
+            let rxt = &rock_x + &rock_vx * &t;
+            solver.assert(&px._eq(&rxt));
+            let y = z3::ast::Int::from_i64(&ctx, hailstone.py as i64);
+            let vy = z3::ast::Int::from_i64(&ctx, hailstone.vy as i64);
+            let py = &y + &vy * &t;
+            let ryt = &rock_y + &rock_vy * &t;
+            solver.assert(&py._eq(&ryt));
+            let z = z3::ast::Int::from_i64(&ctx, hailstone.pz as i64);
+            let vz = z3::ast::Int::from_i64(&ctx, hailstone.vz as i64);
+            let pz = &z + &vz * &t;
+            let rzt = &rock_z + &rock_vz * &t;
+            solver.assert(&pz._eq(&rzt));
+        }
+
+        let r = match solver.check() {
+            z3::SatResult::Sat => {
+                let model =solver.get_model().unwrap();
+                info!(model = debug(&model));
+                let x = model.get_const_interp(&rock_x).unwrap().as_i64().unwrap();
+                let y = model.get_const_interp(&rock_y).unwrap().as_i64().unwrap();
+                let z = model.get_const_interp(&rock_z).unwrap().as_i64().unwrap();
+                x + y + z
+            }
+            _ => todo!(),
+        };
+        Ok(r as ResultType)
     }
 }
 
