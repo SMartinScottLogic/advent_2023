@@ -1,6 +1,9 @@
 use std::io::{BufRead, BufReader};
-use tracing::{debug, event_enabled, info, Level};
-use z3::{Solver, Context, Config, ast::Ast};
+use tracing::debug;
+use z3::{
+    ast::{self, Ast},
+    Config, Context, SatResult, Solver,
+};
 
 pub type ResultType = f64;
 
@@ -150,41 +153,43 @@ impl utils::Solution for Solution {
         // Implement for problem
         let ctx = Context::new(&Config::default());
         let solver = Solver::new(&ctx);
-        let zero = z3::ast::Int::from_i64(&ctx, 0);
+        let zero = ast::Int::from_i64(&ctx, 0);
 
-        let rock_x = z3::ast::Int::new_const(&ctx, "rock_x");
-        let rock_y = z3::ast::Int::new_const(&ctx, "rock_y");
-        let rock_z = z3::ast::Int::new_const(&ctx, "rock_z");
-        let rock_vx = z3::ast::Int::new_const(&ctx, "rock_vx");
-        let rock_vy = z3::ast::Int::new_const(&ctx, "rock_vy");
-        let rock_vz = z3::ast::Int::new_const(&ctx, "rock_vz");
+        let rock_x = ast::Int::new_const(&ctx, "rock_x");
+        let rock_y = ast::Int::new_const(&ctx, "rock_y");
+        let rock_z = ast::Int::new_const(&ctx, "rock_z");
+        let rock_vx = ast::Int::new_const(&ctx, "rock_vx");
+        let rock_vy = ast::Int::new_const(&ctx, "rock_vy");
+        let rock_vz = ast::Int::new_const(&ctx, "rock_vz");
 
         for (i, hailstone) in self.hailstones.iter().enumerate() {
-            if i > 4 {continue;}
+            if i > 4 {
+                continue;
+            }
             let t_name = format!("t{i}");
-            let t = z3::ast::Int::new_const(&ctx, t_name);
+            let t = ast::Int::new_const(&ctx, t_name);
             solver.assert(&t.ge(&zero));
-            let x = z3::ast::Int::from_i64(&ctx, hailstone.px as i64);
-            let vx = z3::ast::Int::from_i64(&ctx, hailstone.vx as i64);
+            let x = ast::Int::from_i64(&ctx, hailstone.px as i64);
+            let vx = ast::Int::from_i64(&ctx, hailstone.vx as i64);
             let px = &x + &vx * &t;
             let rxt = &rock_x + &rock_vx * &t;
             solver.assert(&px._eq(&rxt));
-            let y = z3::ast::Int::from_i64(&ctx, hailstone.py as i64);
-            let vy = z3::ast::Int::from_i64(&ctx, hailstone.vy as i64);
+            let y = ast::Int::from_i64(&ctx, hailstone.py as i64);
+            let vy = ast::Int::from_i64(&ctx, hailstone.vy as i64);
             let py = &y + &vy * &t;
             let ryt = &rock_y + &rock_vy * &t;
             solver.assert(&py._eq(&ryt));
-            let z = z3::ast::Int::from_i64(&ctx, hailstone.pz as i64);
-            let vz = z3::ast::Int::from_i64(&ctx, hailstone.vz as i64);
+            let z = ast::Int::from_i64(&ctx, hailstone.pz as i64);
+            let vz = ast::Int::from_i64(&ctx, hailstone.vz as i64);
             let pz = &z + &vz * &t;
             let rzt = &rock_z + &rock_vz * &t;
             solver.assert(&pz._eq(&rzt));
         }
 
         let r = match solver.check() {
-            z3::SatResult::Sat => {
-                let model =solver.get_model().unwrap();
-                info!(model = debug(&model));
+            SatResult::Sat => {
+                let model = solver.get_model().unwrap();
+                debug!(model = debug(&model));
                 let x = model.get_const_interp(&rock_x).unwrap().as_i64().unwrap();
                 let y = model.get_const_interp(&rock_y).unwrap().as_i64().unwrap();
                 let z = model.get_const_interp(&rock_z).unwrap().as_i64().unwrap();
